@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>ab3c5f43-92d9-42cc-a987-1e9520ddeba0</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QRCoder" Version="1.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Probel.Survey.Application\Probel.Survey.Application.csproj" />
+    <ProjectReference Include="..\Probel.Survey.Infrastructure\Probel.Survey.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

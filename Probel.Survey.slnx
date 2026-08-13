@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Probel.Survey.Application/Probel.Survey.Application.csproj" />
+  <Project Path="Probel.Survey.Domain/Probel.Survey.Domain.csproj" />
+  <Project Path="Probel.Survey.Infrastructure/Probel.Survey.Infrastructure.csproj" />
+  <Project Path="Probel.Survey.Web/Probel.Survey.Web.csproj" />
+</Solution>

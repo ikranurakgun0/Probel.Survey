@@ -1,0 +1,70 @@
+﻿@model IReadOnlyList<Probel.Survey.Application.Anketler.AnketListeDto>
+
+@if (TempData["Mesaj"] != null)
+{
+    <div class="alert alert-success">@TempData["Mesaj"]</div>
+}
+@if (TempData["Hata"] != null)
+{
+    <div class="alert alert-danger">@TempData["Hata"]</div>
+}
+
+<h2>Anketler</h2>
+
+<a asp-action="Olustur" class="btn btn-success mb-3">+ Yeni Anket</a>
+<a asp-controller="Kullanici" asp-action="Index" class="d-inline-block mb-3 ms-3">Kullanıcı Yönetimi →</a>
+<a asp-action="Aksiyonlar" class="d-inline-block mb-3 ms-3">Aksiyonlar →</a>
+<a asp-action="DenetimIzleri" class="d-inline-block mb-3 ms-3">Denetim İzi →</a>
+
+<form method="get" class="row g-2 mb-3" style="max-width:400px;">
+    <div class="col-auto">
+        <select name="hizmetTuru" class="form-select" onchange="this.form.submit()">
+            <option value="">Tüm hizmet türleri</option>
+            <option value="YATAN" selected="@(ViewBag.SeciliHizmetTuru == "YATAN")">Yatan</option>
+            <option value="AYAKTAN" selected="@(ViewBag.SeciliHizmetTuru == "AYAKTAN")">Ayaktan</option>
+            <option value="ACIL" selected="@(ViewBag.SeciliHizmetTuru == "ACIL")">Acil</option>
+        </select>
+    </div>
+</form>
+
+@if (!Model.Any())
+{
+    <p>Henüz hiç anket sürümü yok.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Anket Adı</th>
+                <th>Hizmet Türü</th>
+                <th>Sürüm No</th>
+                <th>Durum</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.AnketAdi</td>
+                    <td>@item.HizmetTuru</td>
+                    <td>@item.SurumNo</td>
+                    <td>@item.Durum</td>
+                    <td>
+                        <a asp-action="Detay" asp-route-id="@item.Id">Detay</a>
+                    </td>
+                    <td>
+                        @if (item.Durum == "Taslak")
+                        {
+                            <form asp-action="Yayinla" asp-route-id="@item.Id" method="post" style="display:inline">
+                                <button type="submit" class="btn btn-sm btn-outline-primary">Yayınla</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,29 @@
+﻿@model IReadOnlyList<Probel.Survey.Application.Anketler.DenetimIziDto>
+
+<h2>Denetim İzi</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Zaman</th>
+            <th>Kullanıcı ID</th>
+            <th>İşlem</th>
+            <th>Hedef Tablo</th>
+            <th>Hedef ID</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var d in Model)
+        {
+            <tr>
+                <td>@d.Zaman.ToString("dd.MM.yyyy HH:mm")</td>
+                <td>@(d.KullaniciId?.ToString() ?? "-")</td>
+                <td>@d.Islem</td>
+                <td>@(d.HedefTablo ?? "-")</td>
+                <td>@(d.HedefId?.ToString() ?? "-")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="d-inline-block mt-3">← Anket listesine dön</a>

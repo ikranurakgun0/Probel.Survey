@@ -1,0 +1,44 @@
+﻿@model IReadOnlyList<Probel.Survey.Application.Anketler.AksiyonListeDto>
+
+<h2>Aksiyonlar</h2>
+
+@if (TempData["Mesaj"] != null)
+{
+    <div class="alert alert-success">@TempData["Mesaj"]</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Soru</th>
+            <th>Açıklama</th>
+            <th>Hedef Tarih</th>
+            <th>Durum</th>
+            <th>Değiştir</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.SoruMetni</td>
+                <td>@a.Aciklama</td>
+                <td>@(a.HedefTarih?.ToString("dd.MM.yyyy") ?? "-")</td>
+                <td>@a.Durum</td>
+                <td>
+                    <form asp-action="AksiyonDurumGuncelle" method="post" class="d-flex gap-2">
+                        <input type="hidden" name="aksiyonId" value="@a.Id" />
+                        <select name="yeniDurum" class="form-select form-select-sm">
+                            <option value="Acik" selected="@(a.Durum == "Acik")">Açık</option>
+                            <option value="DevamEdiyor" selected="@(a.Durum == "DevamEdiyor")">Devam Ediyor</option>
+                            <option value="Kapandi" selected="@(a.Durum == "Kapandi")">Kapandı</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">Güncelle</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="d-inline-block mt-3">← Anket listesine dön</a>

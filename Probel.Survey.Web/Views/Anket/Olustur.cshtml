@@ -1,0 +1,33 @@
+﻿<h2>Yeni Anket Oluştur</h2>
+
+<form method="post">       
+    <div class="mb-3">
+        <label>Anket Adı</label>
+        <input type="text" name="ad" class="form-control" />                        
+    </div>
+    <div class="mb-3">
+        <label>Hizmet Türü</label>
+        <select name="hizmetTuru" class="form-select">
+            <option value="">-- Seçiniz --</option>
+            <option value="YATAN">Yatan</option>
+            <option value="AYAKTAN">Ayaktan</option>
+            <option value="ACIL">Acil</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Kaydet</button>
+</form>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="text-danger mt-2">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <p>@error.ErrorMessage</p>
+        }
+    </div>
+    //asp-action gibi bir tag helper kullanmadık, 
+    //çünkü form zaten aynı sayfaya (aynı Controller/Action'a, sadece POST olarak) gönderiliyor —
+    //bu en basit hali. name="ad" ve name="hizmetTuru" yazan input'lar, 
+    //Controller'daki Olustur(string ad, string? hizmetTuru, ...) 
+    //parametreleriyle isim eşleşmesiyle otomatik doluyor — bu, daha önce konuştuğumuz model binding.
+}

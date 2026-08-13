@@ -1,0 +1,30 @@
+﻿@model IReadOnlyList<Probel.Survey.Application.Kullanicilar.KullaniciListeDto>
+
+<h2>Kullanıcılar</h2>
+
+@if (TempData["Mesaj"] != null)
+{
+    <div class="alert alert-success">@TempData["Mesaj"]</div>
+}
+
+<a asp-action="Ekle" class="btn btn-success mb-3">+ Yeni Kullanıcı</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Kullanıcı Adı</th>
+            <th>Ad Soyad</th>
+            <th>Durum</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var k in Model)
+        {
+            <tr>
+                <td>@k.KullaniciAdi</td>
+                <td>@k.AdSoyad</td>
+                <td>@(k.AktifMi ? "Aktif" : "Pasif")</td>
+            </tr>
+        }
+    </tbody>
+</table>

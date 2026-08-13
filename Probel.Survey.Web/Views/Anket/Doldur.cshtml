@@ -1,0 +1,69 @@
+﻿@model Probel.Survey.Application.Anketler.AnketDoldurmaDto
+
+<div style="max-width:480px;margin:0 auto;">
+    <h4>Hasta Memnuniyet Anketi</h4>
+    <p class="text-muted">Görüşleriniz bizim için değerlidir. Katılımınız anonimdir.</p>
+
+    <form method="post">
+        <input type="hidden" name="token" value="@Model.Token" />
+
+        <div class="border rounded p-3 mb-3">
+            <p class="fw-bold">Birkaç kısa bilgi (isteğe bağlı)</p>
+            <div class="mb-2">
+                <label>Cinsiyet</label>
+                <select name="cinsiyet" class="form-select">
+                    <option value="">Belirtmek istemiyorum</option>
+                    <option value="Kadin">Kadın</option>
+                    <option value="Erkek">Erkek</option>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label>Yaş Aralığı</label>
+                <select name="yasAraligi" class="form-select">
+                    <option value="">Belirtmek istemiyorum</option>
+                    <option value="20 altı">20'nin altında</option>
+                    <option value="20-29">20-29</option>
+                    <option value="30-39">30-39</option>
+                    <option value="40-49">40-49</option>
+                    <option value="50-59">50-59</option>
+                    <option value="60 ustu">60 üstü</option>
+                </select>
+            </div>
+        </div>
+
+        @foreach (var bolum in Model.Bolumler)
+        {
+            <h5>@bolum.Ad</h5>
+
+            @foreach (var soru in bolum.Sorular)
+            {
+                <div class="mb-4">
+                    <p>@soru.Metin @(soru.ZorunluMu ? "*" : "")</p>
+
+                    @if (soru.Tip == "Olcek5")
+                    {
+                        @foreach (var secenek in soru.Secenekler)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                            name="secenek_@soru.Id" value="@secenek.Id"
+                                            id="s@(soru.Id)_@(secenek.Id)"
+                                    @(soru.ZorunluMu ? "required" : "") />
+                                <label class="form-check-label" for="s@(soru.Id)_@(secenek.Id)">
+                                    @secenek.Metin
+                                </label>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                            <textarea name="metin_@soru.Id" class="form-control" rows="2"
+                            @(soru.ZorunluMu ? "required" : "")></textarea>
+                    }
+                </div>
+            }
+        }
+
+        <button type="submit" class="btn btn-primary w-100 mb-4">Gönder</button>
+    </form>
+</div>
