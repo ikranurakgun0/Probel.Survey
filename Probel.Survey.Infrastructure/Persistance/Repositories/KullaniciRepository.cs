@@ -12,6 +12,8 @@ public class KullaniciRepository : IKullaniciRepository
     public Task<Kullanici?> GetByKullaniciAdiAsync(string kullaniciAdi, CancellationToken ct = default)
         => _db.Kullanicilar.FirstOrDefaultAsync(k => k.KullaniciAdi == kullaniciAdi, ct);
 
+    public Task<Kullanici?> GetByIdAsync(long id, CancellationToken ct = default)
+        => _db.Kullanicilar.FirstOrDefaultAsync(k => k.Id == id, ct);
 
     public async Task AddAsync(Kullanici kullanici, CancellationToken ct = default)
         => await _db.Kullanicilar.AddAsync(kullanici, ct);

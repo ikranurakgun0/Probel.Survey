@@ -1,110 +1,114 @@
 ﻿@model Probel.Survey.Application.Anketler.AnketRaporDto
 
-<h2>Anket Raporu</h2>
+<h2 class="mb-3"><i class="bi bi-graph-up"></i> Anket Raporu</h2>
 
 <div class="row mb-4">
     <div class="col-md-4">
-        <div class="border rounded p-3 text-center">
-            <div class="text-muted">Genel Memnuniyet Skoru</div>
-            <div style="font-size:2.5rem;font-weight:bold;color:#3A8F5A;">%@Model.GenelSkor</div>
+        <div class="pb-stat-card">
+            <div class="pb-stat-label">Genel Memnuniyet Skoru</div>
+            <div class="pb-stat-value" style="color:var(--pb-success);">%@Model.GenelSkor</div>
         </div>
     </div>
     <div class="col-md-4">
-        <div class="border rounded p-3 text-center">
-            <div class="text-muted">Toplam Katılım</div>
-            <div style="font-size:2.5rem;font-weight:bold;">@Model.ToplamKatilim</div>
+        <div class="pb-stat-card">
+            <div class="pb-stat-label">Toplam Katılım</div>
+            <div class="pb-stat-value">@Model.ToplamKatilim</div>
         </div>
     </div>
 </div>
 
-<h4>Soru Bazında Karşılanma Oranı</h4>
+<div class="pb-card">
+    <h4>Soru Bazında Karşılanma Oranı</h4>
 
-@if (!Model.SoruSonuclari.Any())
-{
-    <p class="text-muted">Henüz 5'li ölçekli soruya cevap verilmemiş.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Soru</th>
-                <th>Cevap Sayısı</th>
-                <th>Karşılanma Oranı</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-           @foreach (var s in Model.SoruSonuclari)
-{
-    <tr class="@(s.DusukPerformans ? "table-danger" : "")">
-        <td>@s.SoruMetni</td>
-        <td>@s.CevapSayisi</td>
-        <td>
-            <div class="progress" style="height:20px;">
-                <div class="progress-bar @(s.DusukPerformans ? "bg-danger" : "")" style="width:@(s.KarsilanmaOrani)%">
-                    %@s.KarsilanmaOrani
-                </div>
-            </div>
-        </td>
-        <td>
-            @if (s.AcikAksiyonSayisi > 0)
+    @if (!Model.SoruSonuclari.Any())
+    {
+        <p class="text-muted mb-0">Henüz 5'li ölçekli soruya cevap verilmemiş.</p>
+    }
+    else
+    {
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Soru</th>
+                    <th>Cevap Sayısı</th>
+                    <th>Karşılanma Oranı</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.SoruSonuclari)
+                {
+                    <tr class="@(s.DusukPerformans ? "table-danger" : "")">
+                        <td>@s.SoruMetni</td>
+                        <td>@s.CevapSayisi</td>
+                        <td>
+                            <div class="progress" style="height:20px;">
+                                <div class="progress-bar @(s.DusukPerformans ? "bg-danger" : "")" style="width:@(s.KarsilanmaOrani)%">
+                                    %@s.KarsilanmaOrani
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            @if (s.AcikAksiyonSayisi > 0)
+                            {
+                                <span class="badge bg-warning">@s.AcikAksiyonSayisi açık aksiyon</span>
+                            }
+                            else if (s.DusukPerformans)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal" data-bs-target="#aksiyonModal-@s.SoruId">
+                                    <i class="bi bi-flag"></i> Aksiyon Aç
+                                </button>
+
+                                <div class="modal fade" id="aksiyonModal-@s.SoruId" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form asp-action="AksiyonAc" method="post">
+                                                <input type="hidden" name="soruId" value="@s.SoruId" />
+                                                <input type="hidden" name="anketSurumId" value="@Model.AnketSurumId" />
+                                                <div class="modal-header">
+                                                    <h5>Aksiyon Aç — @s.SoruMetni</h5>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <label>Açıklama</label>
+                                                    <textarea name="aciklama" class="form-control" rows="3" required></textarea>
+                                                    <label class="mt-2">Hedef Tarih</label>
+                                                    <input type="date" name="hedefTarih" class="form-control" />
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<div class="pb-card">
+    <h4>Açık Uçlu Yorumlar</h4>
+
+    @if (!Model.AcikUcluYorumlar.Any())
+    {
+        <p class="text-muted mb-0">Henüz yorum yapılmamış.</p>
+    }
+    else
+    {
+        <ul class="list-group list-group-flush mb-0">
+            @foreach (var yorum in Model.AcikUcluYorumlar)
             {
-                <span class="badge bg-warning">@s.AcikAksiyonSayisi açık aksiyon</span>
+                <li class="list-group-item">@yorum</li>
             }
-            else if (s.DusukPerformans)
-            {
-                <button type="button" class="btn btn-sm btn-outline-danger"
-                        data-bs-toggle="modal" data-bs-target="#aksiyonModal-@s.SoruId">
-                    Aksiyon Aç
-                </button>
+        </ul>
+    }
+</div>
 
-                <div class="modal fade" id="aksiyonModal-@s.SoruId" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form asp-action="AksiyonAc" method="post">
-                                <input type="hidden" name="soruId" value="@s.SoruId" />
-                                <input type="hidden" name="anketSurumId" value="@Model.AnketSurumId" />
-                                <div class="modal-header">
-                                    <h5>Aksiyon Aç — @s.SoruMetni</h5>
-                                </div>
-                                <div class="modal-body">
-                                    <label>Açıklama</label>
-                                    <textarea name="aciklama" class="form-control" rows="3" required></textarea>
-                                    <label class="mt-2">Hedef Tarih</label>
-                                    <input type="date" name="hedefTarih" class="form-control" />
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            }
-        </td>
-    </tr>
-}
-                
-            
-        </tbody>
-    </table>
-}
-
-<h4>Açık Uçlu Yorumlar</h4>
-
-@if (!Model.AcikUcluYorumlar.Any())
-{
-    <p class="text-muted">Henüz yorum yapılmamış.</p>
-}
-else
-{
-    <ul class="list-group">
-        @foreach (var yorum in Model.AcikUcluYorumlar)
-        {
-            <li class="list-group-item">@yorum</li>
-        }
-    </ul>
-}
-
-<a asp-action="Detay" asp-route-id="@Model.AnketSurumId" class="d-inline-block mt-3">← Anket detayına dön</a>
+<a asp-action="Detay" asp-route-id="@Model.AnketSurumId" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Anket detayına dön
+</a>

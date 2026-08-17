@@ -17,6 +17,8 @@ public class KullaniciConfiguration : IEntityTypeConfiguration<Kullanici>
         b.Property(x => x.AdSoyad).HasColumnName("AD_SOYAD").HasMaxLength(200);
         b.Property(x => x.AktifMi).HasColumnName("AKTIF_MI")
             .HasConversion(v => v ? 1 : 0, v => v == 1);
+        b.Property(x => x.YoneticiMi).HasColumnName("YONETICI_MI")
+            .HasConversion(v => v ? 1 : 0, v => v == 1);
 
         b.HasIndex(x => x.KullaniciAdi).IsUnique();
     }

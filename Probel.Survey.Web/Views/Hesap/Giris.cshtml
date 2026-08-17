@@ -1,24 +1,33 @@
-﻿<div style="max-width:400px;margin:80px auto;">
-    <h3>Giriş Yap</h3>
+﻿@{
+    Layout = "_LayoutBos";
+}
 
+<div class="text-center mb-4">
+    <div class="pb-bos-logo"><i class="bi bi-activity"></i></div>
+    <h4>Probel'e Giriş Yap</h4>
+</div>
+
+<div class="pb-card" style="max-width:380px;margin:0 auto;">
     <form method="post">
         <div class="mb-3">
-            <label>Kullanıcı Adı</label>
-            <input type="text" name="kullaniciAdi" class="form-control" />
+            <label class="small text-muted">Kullanıcı Adı</label>
+            <input type="text" name="kullaniciAdi" class="form-control" autofocus />
         </div>
         <div class="mb-3">
-            <label>Şifre</label>
+            <label class="small text-muted">Şifre</label>
             <input type="password" name="sifre" class="form-control" />
         </div>
-        <button type="submit" class="btn btn-primary w-100">Giriş Yap</button>
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-box-arrow-in-right"></i> Giriş Yap
+        </button>
     </form>
 
     @if (!ViewData.ModelState.IsValid)
     {
-        <div class="text-danger mt-2">
+        <div class="alert alert-danger mt-3 mb-0">
             @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
             {
-                <p>@error.ErrorMessage</p>
+                <p class="mb-0">@error.ErrorMessage</p>
             }
         </div>
     }

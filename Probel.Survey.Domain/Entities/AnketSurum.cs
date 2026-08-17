@@ -53,4 +53,11 @@ public class AnketSurum
         Durum = AnketDurumu.Yayinda;
         YayinTarihi = DateTime.UtcNow;
     }
+    public void Arsivle()
+    {
+        if (Durum != AnketDurumu.Yayinda)
+            throw new InvalidOperationException("Yalnızca yayındaki anketler arşivlenebilir.");
+
+        Durum = AnketDurumu.Arsiv;
+    }
 }

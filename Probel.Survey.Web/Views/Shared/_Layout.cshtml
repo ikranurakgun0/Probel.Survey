@@ -1,50 +1,117 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿@{
+    var current = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="tr">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Probel.Survey.Web</title>
-    <script type="importmap"></script>
+    <title>Probel — Hasta Memnuniyet Anketi</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Probel.Survey.Web.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Probel.Survey.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <aside class="pb-sidebar">
+        <a class="pb-brand" asp-controller="Anket" asp-action="Index">
+            <span class="pb-logo"><i class="bi bi-activity"></i></span>
+            Probel
+        </a>
+
+        <nav class="d-flex flex-column">
+            <a class="pb-nav-link @(current == "Index" ? "active" : "")" asp-controller="Anket" asp-action="Index">
+                <i class="bi bi-clipboard-data"></i> Anketler
+            </a>
+            @{
+                var seciliHizmet = Context.Request.Query["hizmetTuru"].ToString();
+            }
+            <div class="pb-nav-group">
+                <a class="pb-nav-sublink @(current == "Index" && seciliHizmet == "" ? "active" : "")"
+                   asp-controller="Anket" asp-action="Index">Tümü</a>
+                <a class="pb-nav-sublink @(seciliHizmet == "YATAN" ? "active" : "")"
+                   asp-controller="Anket" asp-action="Index" asp-route-hizmetTuru="YATAN">Yatan</a>
+                <a class="pb-nav-sublink @(seciliHizmet == "AYAKTAN" ? "active" : "")"
+                   asp-controller="Anket" asp-action="Index" asp-route-hizmetTuru="AYAKTAN">Ayaktan</a>
+                <a class="pb-nav-sublink @(seciliHizmet == "ACIL" ? "active" : "")"
+                   asp-controller="Anket" asp-action="Index" asp-route-hizmetTuru="ACIL">Acil</a>
+                
+            </div>
+            <a class="pb-nav-link @(current == "Aksiyonlar" ? "active" : "")" asp-controller="Anket" asp-action="Aksiyonlar">
+                <i class="bi bi-exclamation-triangle"></i> Aksiyonlar
+            </a>
+            <a class="pb-nav-link @(current == "Karsilastirma" ? "active" : "")" asp-controller="Anket" asp-action="Karsilastirma">
+                <i class="bi bi-bar-chart-line"></i> Karşılaştırma
+            </a>
+            <a class="pb-nav-link @(current == "DenetimIzleri" ? "active" : "")" asp-controller="Anket" asp-action="DenetimIzleri">
+                <i class="bi bi-shield-check"></i> Denetim İzi
+            </a>
+            <a class="pb-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Kullanici" ? "active" : "")" asp-controller="Kullanici" asp-action="Index">
+                <i class="bi bi-people"></i> Kullanıcılar
+            </a>
+        </nav>
+
+        <div class="pb-sidebar-footer">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <a class="pb-nav-link" asp-controller="Hesap" asp-action="Cikis">
+                    <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                </a>
+            }
+        </div>
+    </aside>
+
+    <main class="pb-content">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="modal fade" id="pbConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Emin misiniz?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <p id="pbConfirmMessage" class="mb-0"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Vazgeç</button>
+                    <button type="button" class="btn btn-primary" id="pbConfirmOkBtn">Onayla</button>
                 </div>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+        </div>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Probel.Survey.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+            (function() {
+                var pendingForm = null;
+                var modalEl = document.getElementById('pbConfirmModal');
+                var modal = new bootstrap.Modal(modalEl);
+                var messageEl = document.getElementById('pbConfirmMessage');
+                var okBtn = document.getElementById('pbConfirmOkBtn');
+
+                document.addEventListener('submit', function(e) {
+                    var form = e.target;
+                    if (form.hasAttribute('data-confirm')) {
+                        e.preventDefault();
+                        pendingForm = form;
+                        messageEl.textContent = form.getAttribute('data-confirm');
+                        modal.show();
+                    }
+                });
+
+                okBtn.addEventListener('click', function() {
+                    modal.hide();
+                    if (pendingForm) {
+                        pendingForm.submit();
+                        pendingForm = null;
+                    }
+                });
+            })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

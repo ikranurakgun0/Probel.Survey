@@ -8,10 +8,10 @@ namespace Probel.Survey.Application.Kullanicilar;
 public class KullaniciService : IKullaniciService
 {
     private readonly IKullaniciRepository _repository;
-    private readonly PasswordHasher<Kullanici> _hasher = new();
     private readonly IDenetimKaydedici _denetim;
+    private readonly PasswordHasher<Kullanici> _hasher = new();
 
-    public KullaniciService(IKullaniciRepository repository, IDenetimKaydedici denetim)   // ← DEĞİŞTİ
+    public KullaniciService(IKullaniciRepository repository, IDenetimKaydedici denetim)
     {
         _repository = repository;
         _denetim = denetim;
@@ -27,7 +27,7 @@ public class KullaniciService : IKullaniciService
         return sonuc == PasswordVerificationResult.Success ? kullanici : null;
     }
 
-    public async Task KayitAsync(string kullaniciAdi, string sifre, string adSoyad, long? islemYapanId = null, CancellationToken ct = default)
+    public async Task KayitAsync(string kullaniciAdi, string sifre, string adSoyad, bool yoneticiMi = false, long? islemYapanId = null, CancellationToken ct = default)
     {
         var mevcut = await _repository.GetByKullaniciAdiAsync(kullaniciAdi, ct);
         if (mevcut != null)
@@ -35,20 +35,43 @@ public class KullaniciService : IKullaniciService
 
         var gecici = new Kullanici(kullaniciAdi, "", adSoyad);
         var hash = _hasher.HashPassword(gecici, sifre);
-        var kullanici = new Kullanici(kullaniciAdi, hash, adSoyad);
+        var kullanici = new Kullanici(kullaniciAdi, hash, adSoyad, yoneticiMi);
 
         await _repository.AddAsync(kullanici, ct);
         await _repository.SaveChangesAsync(ct);
+
         await _denetim.KaydetAsync(islemYapanId, "KULLANICI_EKLE", "KULLANICI", kullanici.Id, ct);
     }
+
     public async Task<IReadOnlyList<KullaniciListeDto>> GetAllAsync(CancellationToken ct = default)
     {
         var kullanicilar = await _repository.GetAllAsync(ct);
         return kullanicilar
-            .Select(k => new KullaniciListeDto(k.Id, k.KullaniciAdi, k.AdSoyad, k.AktifMi))
+            .Select(k => new KullaniciListeDto(k.Id, k.KullaniciAdi, k.AdSoyad, k.AktifMi, k.YoneticiMi))
             .ToList();
     }
 
     public Task<bool> HicKullaniciVarMiAsync(CancellationToken ct = default)
         => _repository.HicKullaniciVarMiAsync(ct);
+
+    public async Task PasiflestirAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default)
+    {
+        var kullanici = await _repository.GetByIdAsync(kullaniciId, ct)
+                        ?? throw new KeyNotFoundException("Kullanıcı bulunamadı.");
+
+        kullanici.Pasiflestir();
+        await _repository.SaveChangesAsync(ct);
+
+        await _denetim.KaydetAsync(islemYapanId, "KULLANICI_PASIFLESTIR", "KULLANICI", kullaniciId, ct);
+    }
+    public async Task AktiflestirAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default)
+    {
+        var kullanici = await _repository.GetByIdAsync(kullaniciId, ct)
+                        ?? throw new KeyNotFoundException("Kullanıcı bulunamadı.");
+
+        kullanici.Aktiflestir();
+        await _repository.SaveChangesAsync(ct);
+
+        await _denetim.KaydetAsync(islemYapanId, "KULLANICI_AKTIFLESTIR", "KULLANICI", kullaniciId, ct);
+    }
 }

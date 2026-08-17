@@ -1,7 +1,34 @@
 ﻿@model Probel.Survey.Application.Anketler.AnketDetayDto
 @using Probel.Survey.Application.Anketler
 
-<h2>Anket Sürümü #@Model.SurumNo — @Model.Durum</h2>
+@{
+    var pillClass = Model.Durum switch
+    {
+        "Yayinda" => "pb-status-yayinda",
+        "Arsiv" => "pb-status-arsiv",
+        _ => "pb-status-taslak"
+    };
+    var pillText = Model.Durum switch
+    {
+        "Yayinda" => "Yayında",
+        "Arsiv" => "Arşivde",
+        _ => "Taslak"
+    };
+}
+
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <div class="text-muted small mb-1">@Model.HizmetTuru · Sürüm @Model.SurumNo</div>
+        <div class="d-flex align-items-center gap-2">
+            <h2 class="mb-0">@Model.AnketAdi</h2>
+            <span class="pb-status-pill @pillClass">@pillText</span>
+        </div>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left"></i> Listeye Dön
+    </a>
+</div>
+
 @if (TempData["Mesaj"] != null)
 {
     <div class="alert alert-success">@TempData["Mesaj"]</div>
@@ -10,117 +37,175 @@
 {
     <div class="alert alert-danger">@TempData["Hata"]</div>
 }
-<h4>Bölümler</h4>
 
-@foreach (var bolum in Model.Bolumler)
-{
-    <div class="border rounded p-3 mb-3">
-        <h5>@bolum.Ad</h5>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="pb-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="mb-0"><i class="bi bi-list-check"></i> Bölümler</h4>
+                @if (Model.Durum == "Yayinda")
+                {
+                    <a asp-action="Rapor" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-graph-up"></i> Raporu Gör
+                    </a>
+                }
+            </div>
 
-        @if (!bolum.Sorular.Any())
+            @if (!Model.Bolumler.Any())
+            {
+                <p class="text-muted small">Henüz hiç bölüm eklenmemiş.</p>
+            }
+
+            @foreach (var bolum in Model.Bolumler)
+            {
+                <div class="pb-card mb-3" style="background:#FAFAFC;">
+                    <h6 class="fw-bold mb-2">@bolum.Ad</h6>
+
+                    @if (!bolum.Sorular.Any())
+                    {
+                        <p class="text-muted small mb-2">Bu bölümde henüz soru yok.</p>
+                    }
+                    else
+                    {
+                        <div class="mb-2">
+                            @foreach (var soru in bolum.Sorular)
+                            {
+                                <div class="pb-soru-item">
+                                    <div>
+                                        @soru.Metin
+                                        @if (soru.ZorunluMu)
+                                        {
+                                            <span class="text-danger">*</span>
+                                        }
+                                    </div>
+                                    <span class="pb-tip-badge">@(soru.Tip == "Olcek5" ? "5'li Ölçek" : "Açık Uçlu")</span>
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <details class="pb-add-form">
+                        <summary>Soru Ekle</summary>
+                        <form asp-action="SoruEkle" method="post" class="row g-2 mt-2">
+                            <input type="hidden" name="anketSurumId" value="@Model.Id" />
+                            <input type="hidden" name="bolumId" value="@bolum.Id" />
+                            <div class="col-12">
+                                <input type="text" name="metin" class="form-control form-control-sm" placeholder="Soru metni" />
+                            </div>
+                            <div class="col-auto">
+                                <select name="tip" class="form-select form-select-sm">
+                                    <option value="Olcek5">5'li Ölçek</option>
+                                    <option value="Metin">Açık Uçlu</option>
+                                </select>
+                            </div>
+                            <div class="col-auto form-check mt-2">
+                                <input type="checkbox" name="zorunluMu" value="true" class="form-check-input" checked />
+                                <label class="form-check-label small">Zorunlu</label>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-sm btn-primary">Ekle</button>
+                            </div>
+                        </form>
+                    </details>
+                </div>
+            }
+            <details class="pb-add-form mt-2">
+                <summary>Yeni Bölüm Ekle</summary>
+                <form asp-action="BolumEkle" method="post" class="row g-2 mt-2">
+                    <input type="hidden" name="anketSurumId" value="@Model.Id" />
+                    <div class="col-auto">
+                        <input type="text" name="ad" class="form-control form-control-sm" placeholder="Bölüm adı" />
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-sm btn-success">Ekle</button>
+                    </div>
+                </form>
+            </details>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        @if (Model.Durum == "Yayinda")
         {
-            <p class="text-muted">Bu bölümde henüz soru yok.</p>
+            <div class="pb-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0"><i class="bi bi-qr-code"></i> Davetler</h4>
+                    <form asp-action="DavetOlustur" method="post">
+                        <input type="hidden" name="anketSurumId" value="@Model.Id" />
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-lg"></i> Yeni
+                        </button>
+                    </form>
+                </div>
+
+                @{
+                    var davetler = ViewBag.Davetler as IReadOnlyList<DavetDto>;
+                }
+
+                @if (davetler == null || !davetler.Any())
+                {
+                    <p class="text-muted small mb-0">Henüz davet oluşturulmadı.</p>
+                }
+                else
+                {
+                    @foreach (var davet in davetler)
+                    {
+                        <div class="d-flex align-items-center gap-3 py-2" style="border-bottom:1px solid var(--pb-border);">
+                            <img src="@Url.Action("QrKod", "Anket", new { token = davet.Token })" width="64" style="border-radius:6px;" />
+                            <div class="flex-fill small">
+                                <div class="fw-semibold">@davet.Durum</div>
+                                <div class="text-muted">Geçerli: @davet.SonGecerlilik.ToString("dd.MM.yyyy HH:mm")</div>
+                            </div>
+                            @if (davet.Durum != "Kullanildi")
+                            {
+                                <form asp-action="DavetSil" method="post"
+                                      data-confirm="Bu daveti silmek istediğinize emin misiniz?">
+                                    <input type="hidden" name="davetId" value="@davet.Id" />
+                                    <input type="hidden" name="anketSurumId" value="@Model.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Sil">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    }
+                }
+
+                @* ↓↓↓ YENİ EKLENEN BÖLÜM — TOPLU E-POSTA FORMU ↓↓↓ *@
+                <hr />
+                <h6 class="mt-3">Toplu E-posta ile Davet Gönder</h6>
+
+                <form asp-action="TopluDavetOlustur" method="post" class="mb-2">
+                    <input type="hidden" name="anketSurumId" value="@Model.Id" />
+                    <div class="mb-2">
+                        <label class="small text-muted">E-posta adresleri (her satıra bir tane)</label>
+                        <textarea name="hedefListesi" class="form-control form-control-sm" rows="3" placeholder="ornek@eposta.com"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="bi bi-envelope"></i> Gönder
+                    </button>
+                </form>
+
+                @if (TempData["TopluSonuc"] != null)
+                {
+                    var topluSonuclar = System.Text.Json.JsonSerializer.Deserialize<List<TopluDavetSonucDto>>(TempData["TopluSonuc"]!.ToString()!);
+                    <ul class="small mb-0">
+                        @foreach (var s in topluSonuclar!)
+                        {
+                            <li>@s.HedefMaskeli — @(s.BasariliMi ? "Gönderildi" : "Başarısız")</li>
+                        }
+                    </ul>
+                }
+                @* ↑↑↑ YENİ BÖLÜM BURADA BİTİYOR ↑↑↑ *@
+            </div>
         }
         else
         {
-            <ul>
-                @foreach (var soru in bolum.Sorular)
-                {
-                    <li>@soru.Metin (@soru.Tip)@(soru.ZorunluMu ? " *" : "")</li>
-                }
-            </ul>
+            <div class="pb-card">
+                <p class="text-muted mb-0 small">
+                    <i class="bi bi-info-circle"></i> Davet oluşturmak için önce bu anketi yayınlamalısınız.
+                </p>
+            </div>
         }
-
-        <form asp-action="SoruEkle" method="post" class="row g-2 mt-2">
-            <input type="hidden" name="anketSurumId" value="@Model.Id" />
-            <input type="hidden" name="bolumId" value="@bolum.Id" />
-            <div class="col-auto">
-                <input type="text" name="metin" class="form-control" placeholder="Soru metni" />
-            </div>
-            <div class="col-auto">
-                <select name="tip" class="form-select">
-                    <option value="Olcek5">5'li Ölçek</option>
-                    <option value="Metin">Açık Uçlu</option>
-                </select>
-            </div>
-            <div class="col-auto form-check mt-2">
-                <input type="checkbox" name="zorunluMu" value="true" class="form-check-input" checked />
-                <label class="form-check-label">Zorunlu</label>
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-sm btn-primary">Soru Ekle</button>
-            </div>
-        </form>
     </div>
-}
-
-<hr />
-
-<h4>Yeni Bölüm Ekle</h4>
-<form asp-action="BolumEkle" method="post" class="row g-2">
-    <input type="hidden" name="anketSurumId" value="@Model.Id" />
-    <div class="col-auto">
-        <input type="text" name="ad" class="form-control" placeholder="Bölüm adı" />
-    </div>
-    <div class="col-auto">
-        <button type="submit" class="btn btn-success">Bölüm Ekle</button>
-    </div>
-</form>
-
-
-<hr />
-
-@if (Model.Durum == "Yayinda")
-{
-    <a asp-action="Rapor" asp-route-id="@Model.Id" class="btn btn-outline-secondary mb-3">Raporu Gör</a>
-    <h4>Davetler</h4>
-
-    <form asp-action="DavetOlustur" method="post" class="mb-3">
-        <input type="hidden" name="anketSurumId" value="@Model.Id" />
-        <button type="submit" class="btn btn-primary">Yeni Davet Oluştur</button>
-    </form>
-
-    var davetler = ViewBag.Davetler as IReadOnlyList<DavetDto>;
-    @*AnketController.Detay action'ında ViewBag.Davetler = davetler;
-        diye doldurduğumuz veriyi, View içinde geri okuyoruz. 
-        as IReadOnlyList<DavetDto> diyerek, 
-        ViewBag'in gevşek tipini (dynamic) belirli bir listeye çeviriyoruz —
-        böylece @foreach ile güvenle dönebiliriz.*@
-
-    @if (davetler == null || !davetler.Any())
-    {
-        <p class="text-muted">Henüz davet oluşturulmadı.</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Token</th>
-                    <th>Durum</th>
-                    <th>Son Geçerlilik</th>
-                    <th>QR Kod</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var davet in davetler)
-                {
-                    <tr>
-                        <td style="word-break:break-all">@davet.Token</td>
-                        <td>@davet.Durum</td>
-                        <td>@davet.SonGecerlilik.ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>
-                            <img src="@Url.Action("QrKod", "Anket", new { token = davet.Token })" width="100" />
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
-}
-else
-{
-    <p class="text-muted">Davet oluşturmak için önce anketi yayınlamalısınız.</p>
-}
-
-<a asp-action="Index" class="d-inline-block mt-3">← Anket listesine dön</a>
+</div>

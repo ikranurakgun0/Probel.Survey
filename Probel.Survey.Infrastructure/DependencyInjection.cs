@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenUretici, TokenUretici>();
         services.AddScoped<IQrKodUretici, QrKodUretici>();
         services.AddScoped<IDenetimKaydedici, DenetimKaydedici>();
+        services.AddScoped<IBildirimGonderici, GmailBildirimGonderici>();
         return services;
     }
 

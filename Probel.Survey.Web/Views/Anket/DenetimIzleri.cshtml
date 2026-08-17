@@ -1,29 +1,81 @@
 ﻿@model IReadOnlyList<Probel.Survey.Application.Anketler.DenetimIziDto>
 
-<h2>Denetim İzi</h2>
+@functions {
+    static string IslemMetni(string islem) => islem switch
+    {
+        "ANKET_YAYINLA" => "Anket Yayınlandı",
+        "ANKET_ARSIVLE" => "Anket Arşivlendi",
+        "AKSIYON_DURUM_DEGISTIR" => "Aksiyon Durumu Değiştirildi",
+        "KULLANICI_EKLE" => "Kullanıcı Eklendi",
+        "KULLANICI_PASIFLESTIR" => "Kullanıcı Pasifleştirildi",
+        "KULLANICI_AKTIFLESTIR" => "Kullanıcı Aktifleştirildi",
+        "DAVET_SIL" => "Davet Silindi",                          
+        "TOPLU_DAVET_GONDER" => "Toplu Davet Gönderildi",
+        _ => islem
+    };
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Zaman</th>
-            <th>Kullanıcı ID</th>
-            <th>İşlem</th>
-            <th>Hedef Tablo</th>
-            <th>Hedef ID</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var d in Model)
-        {
-            <tr>
-                <td>@d.Zaman.ToString("dd.MM.yyyy HH:mm")</td>
-                <td>@(d.KullaniciId?.ToString() ?? "-")</td>
-                <td>@d.Islem</td>
-                <td>@(d.HedefTablo ?? "-")</td>
-                <td>@(d.HedefId?.ToString() ?? "-")</td>
-            </tr>
-        }
-    </tbody>
-</table>
 
-<a asp-action="Index" class="d-inline-block mt-3">← Anket listesine dön</a>
+    static string IslemIkon(string islem) => islem switch
+    {
+        "ANKET_YAYINLA" => "bi-broadcast",
+        "ANKET_ARSIVLE" => "bi-archive",
+        "AKSIYON_DURUM_DEGISTIR" => "bi-flag",
+        "KULLANICI_EKLE" => "bi-person-plus",
+        "KULLANICI_PASIFLESTIR" => "bi-person-dash",
+        "KULLANICI_AKTIFLESTIR" => "bi-person-check",
+        "DAVET_SIL" => "bi-trash",                                
+        "TOPLU_DAVET_GONDER" => "bi-envelope",
+        _ => "bi-gear"
+    };
+
+    static string TabloMetni(string? tablo) => tablo switch
+    {
+        "ANKET_SURUM" => "Anket",
+        "AKSIYON" => "Aksiyon",
+        "KULLANICI" => "Kullanıcı",
+        _ => tablo ?? "-"
+    };
+}
+
+<h2 class="mb-3"><i class="bi bi-shield-check"></i> Denetim İzi</h2>
+
+<div class="pb-card">
+    @if (!Model.Any())
+    {
+        <p class="text-muted mb-0">Henüz kayıtlı bir işlem yok.</p>
+    }
+    else
+    {
+        <table class="table mb-0">
+            <thead>
+                <tr>
+                    <th>Zaman</th>
+                    <th>Kullanıcı</th>
+                    <th>İşlem</th>
+                    <th>İlgili Kayıt</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model)
+                {
+                    <tr>
+                        <td class="small text-muted">@d.Zaman.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@(d.KullaniciAdi ?? "-")</td>
+                        <td>
+                            <span class="badge" style="background:var(--pb-accent-soft);color:var(--pb-accent);">
+                                <i class="bi @IslemIkon(d.Islem)"></i> @IslemMetni(d.Islem)
+                            </span>
+                        </td>
+                        <td class="text-muted small">
+                            @TabloMetni(d.HedefTablo) @(d.HedefId != null ? $"#{d.HedefId}" : "")
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+<a asp-action="Index" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Anket listesine dön
+</a>

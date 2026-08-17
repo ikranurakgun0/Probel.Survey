@@ -9,62 +9,95 @@
     <div class="alert alert-danger">@TempData["Hata"]</div>
 }
 
-<h2>Anketler</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Anketler</h2>
+    <a asp-action="Olustur" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Yeni Anket
+    </a>
+</div>
 
-<a asp-action="Olustur" class="btn btn-success mb-3">+ Yeni Anket</a>
-<a asp-controller="Kullanici" asp-action="Index" class="d-inline-block mb-3 ms-3">Kullanıcı Yönetimi →</a>
-<a asp-action="Aksiyonlar" class="d-inline-block mb-3 ms-3">Aksiyonlar →</a>
-<a asp-action="DenetimIzleri" class="d-inline-block mb-3 ms-3">Denetim İzi →</a>
-
-<form method="get" class="row g-2 mb-3" style="max-width:400px;">
-    <div class="col-auto">
-        <select name="hizmetTuru" class="form-select" onchange="this.form.submit()">
-            <option value="">Tüm hizmet türleri</option>
-            <option value="YATAN" selected="@(ViewBag.SeciliHizmetTuru == "YATAN")">Yatan</option>
-            <option value="AYAKTAN" selected="@(ViewBag.SeciliHizmetTuru == "AYAKTAN")">Ayaktan</option>
-            <option value="ACIL" selected="@(ViewBag.SeciliHizmetTuru == "ACIL")">Acil</option>
-        </select>
-    </div>
-</form>
-
-@if (!Model.Any())
-{
-    <p>Henüz hiç anket sürümü yok.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Anket Adı</th>
-                <th>Hizmet Türü</th>
-                <th>Sürüm No</th>
-                <th>Durum</th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+<div class="pb-card">
+    @if (!Model.Any())
+    {
+        <p class="text-muted mb-0">Henüz hiç anket sürümü yok.</p>
+    }
+    else
+    {
+        <table class="table mb-0">
+            <thead>
                 <tr>
-                    <td>@item.AnketAdi</td>
-                    <td>@item.HizmetTuru</td>
-                    <td>@item.SurumNo</td>
-                    <td>@item.Durum</td>
-                    <td>
-                        <a asp-action="Detay" asp-route-id="@item.Id">Detay</a>
-                    </td>
-                    <td>
-                        @if (item.Durum == "Taslak")
-                        {
-                            <form asp-action="Yayinla" asp-route-id="@item.Id" method="post" style="display:inline">
-                                <button type="submit" class="btn btn-sm btn-outline-primary">Yayınla</button>
-                            </form>
-                        }
-                    </td>
+                    <th>Anket Adı</th>
+                    <th>Hizmet Türü</th>
+                    <th>Sürüm</th>
+                    <th>Durum</th>
+                    <th></th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@item.AnketAdi</td>
+                        <td><span class="text-muted">@item.HizmetTuru</span></td>
+                        <td>@item.SurumNo</td>
+                        <td>
+                            @if (item.Durum == "Yayinda")
+                            {
+                                <span class="badge bg-success">Yayında</span>
+                            }
+                            else if (item.Durum == "Arsiv")
+                            {
+                                <span class="badge" style="background:#EDEEF2;color:#6B7280;"><i class="bi bi-archive"></i> Arşivde</span>
+                            }
+                            else
+                            {
+                                <span class="badge" style="background:#EDEEF2;color:#6B7280;">Taslak</span>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Detay" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-arrow-right"></i> Detay
+                            </a>
+                        </td>
+                        <td>
+                            @if (item.Durum == "Taslak")
+                            {
+                                <form asp-action="Yayinla" asp-route-id="@item.Id" method="post" style="display:inline">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="bi bi-broadcast"></i> Yayınla
+                                    </button>
+                                </form>
+
+                                <form asp-action="Sil" asp-route-id="@item.Id" method="post" style="display:inline"
+                                      data-confirm="Bu anketi silmek istediğinize emin misiniz? Bu işlem geri alınamaz.">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                            else if (item.Durum == "Yayinda")
+                            {
+                                <form asp-action="Arsivle" asp-route-id="@item.Id" method="post" style="display:inline"
+                                      data-confirm="Bu anketi arşivlemek istediğinize emin misiniz? Arşivlenen ankete yeni davet oluşturulamaz.">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-archive"></i> Arşivle
+                                    </button>
+                                </form>
+                            }
+                            else if (item.Durum == "Arsiv")
+                            {
+                                <form asp-action="Yayinla" asp-route-id="@item.Id" method="post" style="display:inline"
+                                      data-confirm="Bu anketi tekrar yayına almak istediğinize emin misiniz?">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-arrow-counterclockwise"></i> Geri Al
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

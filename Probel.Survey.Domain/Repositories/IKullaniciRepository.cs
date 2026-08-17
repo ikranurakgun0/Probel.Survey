@@ -8,6 +8,7 @@ public interface IKullaniciRepository
     Task<Kullanici?> GetByKullaniciAdiAsync(string kullaniciAdi, CancellationToken ct = default);
     Task AddAsync(Kullanici kullanici, CancellationToken ct = default);
     Task<IReadOnlyList<Kullanici>> GetAllAsync(CancellationToken ct = default);
+    Task<Kullanici?> GetByIdAsync(long id, CancellationToken ct = default);
     Task<bool> HicKullaniciVarMiAsync(CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
     //Neden ayrı bir Repository, IAnketRepository'ye eklemedik: Kullanici,
