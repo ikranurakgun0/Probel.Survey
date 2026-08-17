@@ -1,17 +1,29 @@
 ﻿:root {
-    --pb-bg: #F7F8FA;
-    --pb-sidebar: #14161F;
-    --pb-sidebar-hover: #1F2230;
+    /* ---- Ana Mavi Palet ---- */
+    --pb-primary: #1D4ED8;
+    --pb-primary-dark: #0F2E6B;
+    --pb-accent: #2563EB;
+    --pb-accent-soft: #EAF1FF;
+    --pb-accent-hover: #1E40AF;
+    /* ---- Nötr Renkler ---- */
+    --pb-bg: #F5F7FA;
+    --pb-sidebar: #0B1E3D;
+    --pb-sidebar-hover: #16305C;
     --pb-card: #FFFFFF;
-    --pb-border: #E7E9EE;
-    --pb-text: #1A1C23;
-    --pb-muted: #7A7F8C;
-    --pb-accent: #6C5CE7;
-    --pb-accent-soft: #EEEBFC;
-    --pb-success: #16A375;
-    --pb-warning: #E0A020;
-    --pb-danger: #E14D4D;
-    --pb-radius: 14px;
+    --pb-border: #E3E8F0;
+    --pb-text: #1A2333;
+    --pb-muted: #6B7A99;
+    /* ---- Durum Renkleri ---- */
+    --pb-success: #0F9D58;
+    --pb-success-soft: #E6F7EE;
+    --pb-warning: #D97706;
+    --pb-warning-soft: #FFF4E5;
+    --pb-danger: #DC2626;
+    --pb-danger-soft: #FDECEC;
+    --pb-radius: 12px;
+    --pb-radius-sm: 8px;
+    --pb-shadow: 0 1px 2px rgba(16,24,40,0.04), 0 1px 3px rgba(16,24,40,0.06);
+    --pb-shadow-md: 0 4px 12px rgba(16,24,40,0.08);
 }
 
 * {
@@ -23,15 +35,19 @@ body {
     color: var(--pb-text);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 0.925rem;
+    line-height: 1.55;
     margin: 0;
     display: flex;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* ------------------ SIDEBAR ------------------ */
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
 .pb-sidebar {
-    width: 240px;
-    background: var(--pb-sidebar);
+    width: 248px;
+    background: linear-gradient(180deg, var(--pb-sidebar) 0%, #081530 100%);
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -40,44 +56,48 @@ body {
     top: 0;
     left: 0;
     bottom: 0;
+    box-shadow: 2px 0 12px rgba(0,0,0,0.15);
 }
 
 .pb-brand {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 0.65rem;
     color: #fff;
     text-decoration: none;
     font-weight: 700;
     font-size: 1.05rem;
-    padding: 0 0.5rem 1.5rem;
-    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+    padding: 0 0.4rem 1.4rem;
+    margin-bottom: 0.6rem;
     border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
     .pb-brand .pb-logo {
-        width: 30px;
-        height: 30px;
-        background: var(--pb-accent);
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        background: linear-gradient(135deg, var(--pb-primary), #3B82F6);
+        border-radius: 9px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 0.95rem;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(37,99,235,0.4);
     }
 
 .pb-nav-link {
     display: flex;
     align-items: center;
     gap: 0.65rem;
-    color: rgba(255,255,255,0.65);
+    color: rgba(255,255,255,0.62);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.86rem;
     font-weight: 500;
-    padding: 0.65rem 0.75rem;
-    border-radius: 10px;
-    margin-bottom: 0.2rem;
-    transition: all 0.15s ease;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--pb-radius-sm);
+    margin-bottom: 0.15rem;
+    transition: background 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
+    border-left: 2px solid transparent;
 }
 
     .pb-nav-link:hover {
@@ -86,152 +106,33 @@ body {
     }
 
     .pb-nav-link.active {
-        background: var(--pb-accent);
+        background: rgba(37,99,235,0.18);
         color: #fff;
+        border-left: 2px solid #60A5FA;
+        font-weight: 600;
     }
 
     .pb-nav-link i {
-        font-size: 1rem;
+        font-size: 0.98rem;
         width: 18px;
         text-align: center;
     }
 
-.pb-sidebar-footer {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
-}
-
-/* ------------------ CONTENT ------------------ */
-.pb-content {
-    margin-left: 240px;
-    padding: 2.25rem 2.5rem;
-    width: calc(100% - 240px);
-    max-width: 1200px;
-    box-sizing: border-box;
-}
-/* ------------------ SIDEBAR'SIZ SAYFALAR (Doldur, Giriş) ------------------ */
-.pb-bos-body {
-    display: block;
-    background: linear-gradient(180deg, #F4F2FC 0%, #F7F8FA 100%);
-    min-height: 100vh;
-}
-
-.pb-bos-content {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 2.5rem 1.25rem;
-}
-
-.pb-bos-header {
-    text-align: center;
-    margin-bottom: 1.75rem;
-}
-
-    .pb-bos-header .pb-bos-logo {
-        width: 48px;
-        height: 48px;
-        background: var(--pb-accent);
-        border-radius: 12px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        font-size: 1.4rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .pb-bos-header h4 {
-        margin: 0;
-        font-size: 1.1rem;
-    }
-
-.pb-question-card {
-    background: var(--pb-card);
-    border: 1px solid var(--pb-border);
-    border-radius: var(--pb-radius);
-    padding: 1.25rem;
-    margin-bottom: 1rem;
-}
-
-    .pb-question-card .pb-question-text {
-        font-weight: 600;
-        margin-bottom: 0.85rem;
-    }
-
-.pb-option-row {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.55rem 0.75rem;
-    border: 1px solid var(--pb-border);
-    border-radius: 9px;
-    margin-bottom: 0.4rem;
-    cursor: pointer;
-    transition: all 0.12s ease;
-}
-
-    .pb-option-row:hover {
-        border-color: var(--pb-accent);
-        background: var(--pb-accent-soft);
-    }
-
-    .pb-option-row input[type="radio"]:checked ~ label {
-        font-weight: 600;
-    }
-    .pb-nav-group {
-    display: flex;
-    flex-direction: column;
-    padding-left: 1.9rem;
-    margin-bottom: 0.4rem;
-}
-
-.pb-nav-sublink {
-    color: rgba(255,255,255,0.5);
-    text-decoration: none;
-    font-size: 0.8rem;
-    padding: 0.35rem 0.6rem;
-    border-radius: 8px;
-    margin-bottom: 0.1rem;
-    transition: all 0.12s ease;
-}
-
-.pb-nav-sublink:hover {
-    color: #fff;
-    background: var(--pb-sidebar-hover);
-}
-
-.pb-nav-sublink.active {
-    color: #fff;
-    font-weight: 600;
-    position: relative;
-}
-
-.pb-nav-sublink.active::before {
-    content: "";
-    position: absolute;
-    left: -0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--pb-accent);
-}
 .pb-nav-group {
     display: flex;
     flex-direction: column;
     padding-left: 1.9rem;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
 }
 
 .pb-nav-sublink {
-    color: rgba(255,255,255,0.5);
+    color: rgba(255,255,255,0.45);
     text-decoration: none;
     font-size: 0.8rem;
     padding: 0.35rem 0.6rem;
-    border-radius: 8px;
+    border-radius: 7px;
     margin-bottom: 0.1rem;
-    transition: all 0.12s ease;
+    transition: color 0.12s ease, background 0.12s ease;
 }
 
     .pb-nav-sublink:hover {
@@ -248,44 +149,291 @@ body {
         .pb-nav-sublink.active::before {
             content: "";
             position: absolute;
-            left: -0.5rem;
+            left: -0.55rem;
             top: 50%;
             transform: translateY(-50%);
             width: 4px;
             height: 4px;
             border-radius: 50%;
-            background: var(--pb-accent);
+            background: #60A5FA;
         }
-.pb-step {
-    display: none;
+
+.pb-sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-    .pb-step.active {
-        display: block;
+/* ============================================================
+   CONTENT
+   ============================================================ */
+.pb-content {
+    margin-left: 248px;
+    padding: 2.25rem 2.75rem;
+    width: calc(100% - 248px);
+    max-width: 1240px;
+    box-sizing: border-box;
+}
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.pb-card {
+    background: var(--pb-card);
+    border: 1px solid var(--pb-border);
+    border-radius: var(--pb-radius);
+    box-shadow: var(--pb-shadow);
+    padding: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.pb-stat-card {
+    background: var(--pb-card);
+    border: 1px solid var(--pb-border);
+    border-radius: var(--pb-radius);
+    box-shadow: var(--pb-shadow);
+    padding: 1.3rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+    .pb-stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--pb-primary), #60A5FA);
     }
+
+    .pb-stat-card .pb-stat-label {
+        color: var(--pb-muted);
+        font-size: 0.76rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
+    .pb-stat-card .pb-stat-value {
+        font-size: 2.15rem;
+        font-weight: 700;
+        color: var(--pb-text);
+        margin-top: 0.3rem;
+        letter-spacing: -0.02em;
+    }
+
+/* ============================================================
+   BAŞLIKLAR
+   ============================================================ */
+h1, h2 {
+    font-weight: 700;
+    color: var(--pb-text);
+    letter-spacing: -0.015em;
+}
+
+h2 {
+    font-size: 1.42rem;
+}
+
+h4 {
+    font-weight: 600;
+    font-size: 1.03rem;
+    color: var(--pb-text);
+}
+
+h6 {
+    font-weight: 600;
+    color: var(--pb-text);
+}
+
+/* ============================================================
+   TABLO
+   ============================================================ */
+.table {
+    background: var(--pb-card);
+    border-radius: var(--pb-radius);
+    overflow: hidden;
+    border: 1px solid var(--pb-border);
+    box-shadow: var(--pb-shadow);
+}
+
+    .table thead th {
+        background: #F8FAFD;
+        color: var(--pb-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid var(--pb-border);
+        padding: 0.85rem 1rem;
+    }
+
+    .table tbody td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid var(--pb-border);
+        vertical-align: middle;
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .table tbody tr:hover td {
+        background: #FAFBFF;
+    }
+
+/* ============================================================
+   BUTONLAR
+   ============================================================ */
+.btn {
+    font-weight: 600;
+    border-radius: var(--pb-radius-sm);
+    transition: all 0.15s ease;
+}
+
+.btn-primary {
+    background-color: var(--pb-primary) !important;
+    border-color: var(--pb-primary) !important;
+    box-shadow: 0 1px 2px rgba(29,78,216,0.25);
+}
+
+    .btn-primary:hover {
+        background-color: var(--pb-accent-hover) !important;
+        border-color: var(--pb-accent-hover) !important;
+        box-shadow: 0 2px 8px rgba(29,78,216,0.35);
+        transform: translateY(-1px);
+    }
+
+.btn-success {
+    background-color: var(--pb-success) !important;
+    border-color: var(--pb-success) !important;
+}
+
+.btn-outline-primary {
+    color: var(--pb-primary) !important;
+    border-color: var(--pb-primary) !important;
+}
+
+    .btn-outline-primary:hover {
+        background-color: var(--pb-primary) !important;
+        color: #fff !important;
+    }
+
+.btn-outline-secondary, .btn-outline-danger {
+    border-radius: var(--pb-radius-sm) !important;
+}
+
+/* ============================================================
+   ROZETLER / DURUM ETİKETLERİ
+   ============================================================ */
+.badge {
+    border-radius: 7px;
+    font-weight: 600;
+    padding: 0.42em 0.75em;
+    font-size: 0.74rem;
+}
+
+    .badge.bg-warning {
+        background-color: var(--pb-warning) !important;
+    }
+
+    .badge.bg-success {
+        background-color: var(--pb-success) !important;
+    }
+
 .pb-status-pill {
     display: inline-block;
-    padding: 0.25em 0.75em;
+    padding: 0.28em 0.8em;
     border-radius: 20px;
-    font-size: 0.78rem;
+    font-size: 0.76rem;
     font-weight: 600;
 }
 
 .pb-status-yayinda {
-    background: #E5F7F0;
+    background: var(--pb-success-soft);
     color: var(--pb-success);
 }
 
 .pb-status-taslak {
-    background: #EDEEF2;
-    color: #6B7280;
+    background: #EEF1F6;
+    color: #64748B;
 }
 
 .pb-status-arsiv {
-    background: #F0F1F5;
-    color: #8A8F99;
+    background: #F1F2F4;
+    color: #8A92A3;
 }
 
+/* ============================================================
+   İLERLEME ÇUBUĞU
+   ============================================================ */
+.progress {
+    border-radius: 8px;
+    background-color: #EEF1F7;
+    overflow: hidden;
+}
+
+.progress-bar {
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.75rem;
+    transition: width 0.3s ease;
+}
+
+    .progress-bar.bg-danger {
+        background-color: var(--pb-danger) !important;
+    }
+
+    .progress-bar:not(.bg-danger):not(.bg-warning) {
+        background: linear-gradient(90deg, var(--pb-primary), #3B82F6) !important;
+    }
+
+/* ============================================================
+   UYARILAR
+   ============================================================ */
+.alert {
+    border-radius: var(--pb-radius-sm);
+    border: none;
+    font-size: 0.88rem;
+}
+
+.alert-success {
+    background: var(--pb-success-soft);
+    color: var(--pb-success);
+}
+
+.alert-danger {
+    background: var(--pb-danger-soft);
+    color: var(--pb-danger);
+}
+
+.table-danger td {
+    background-color: var(--pb-danger-soft) !important;
+}
+
+/* ============================================================
+   FORM ELEMANLARI
+   ============================================================ */
+.form-control, .form-select {
+    border-radius: var(--pb-radius-sm);
+    border-color: var(--pb-border);
+    font-size: 0.88rem;
+}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--pb-primary);
+        box-shadow: 0 0 0 0.2rem var(--pb-accent-soft);
+    }
+
+label.small, .form-check-label.small {
+    color: var(--pb-muted);
+    font-weight: 500;
+}
+
+/* ============================================================
+   BÖLÜM/SORU KARTLARI (Detay ekranı)
+   ============================================================ */
 .pb-soru-item {
     display: flex;
     justify-content: space-between;
@@ -301,21 +449,27 @@ body {
 
 .pb-tip-badge {
     font-size: 0.7rem;
-    padding: 0.15em 0.55em;
+    padding: 0.18em 0.6em;
     border-radius: 6px;
     background: var(--pb-accent-soft);
     color: var(--pb-accent);
+    font-weight: 600;
     white-space: nowrap;
 }
 
 details.pb-add-form summary {
     cursor: pointer;
-    color: var(--pb-accent);
+    color: var(--pb-primary);
     font-weight: 600;
     font-size: 0.85rem;
     list-style: none;
     padding: 0.4rem 0;
+    transition: color 0.15s ease;
 }
+
+    details.pb-add-form summary:hover {
+        color: var(--pb-accent-hover);
+    }
 
     details.pb-add-form summary::-webkit-details-marker {
         display: none;
@@ -328,8 +482,13 @@ details.pb-add-form summary {
 details.pb-add-form[open] summary::before {
     content: "− ";
 }
+
+/* ============================================================
+   GİRİŞ EKRANI (Auth)
+   ============================================================ */
 .pb-auth-card {
-    box-shadow: 0 4px 24px rgba(20,22,31,0.06);
+    box-shadow: var(--pb-shadow-md);
+    border-top: 3px solid var(--pb-primary);
 }
 
     .pb-auth-card .input-group-text {
@@ -339,6 +498,106 @@ details.pb-add-form[open] summary::before {
     }
 
     .pb-auth-card .form-control:focus {
-        border-color: var(--pb-accent);
+        border-color: var(--pb-primary);
         box-shadow: 0 0 0 0.2rem var(--pb-accent-soft);
     }
+
+/* ============================================================
+   SIDEBAR'SIZ SAYFALAR (Doldur, Giriş)
+   ============================================================ */
+.pb-bos-body {
+    display: block;
+    background: linear-gradient(180deg, #EFF4FC 0%, #F5F7FA 100%);
+    min-height: 100vh;
+}
+
+.pb-bos-content {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem;
+}
+
+.pb-bos-header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+}
+
+    .pb-bos-header .pb-bos-logo {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--pb-primary), #3B82F6);
+        border-radius: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 4px 14px rgba(29,78,216,0.35);
+    }
+
+    .pb-bos-header h4 {
+        margin: 0;
+        font-size: 1.12rem;
+    }
+
+.pb-question-card {
+    background: var(--pb-card);
+    border: 1px solid var(--pb-border);
+    border-radius: var(--pb-radius);
+    padding: 1.3rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--pb-shadow);
+}
+
+    .pb-question-card .pb-question-text {
+        font-weight: 600;
+        margin-bottom: 0.9rem;
+        line-height: 1.4;
+    }
+
+.pb-option-row {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--pb-border);
+    border-radius: var(--pb-radius-sm);
+    margin-bottom: 0.42rem;
+    cursor: pointer;
+    transition: all 0.14s ease;
+}
+
+    .pb-option-row:hover {
+        border-color: var(--pb-primary);
+        background: var(--pb-accent-soft);
+    }
+
+    .pb-option-row input[type="radio"]:checked ~ label {
+        font-weight: 700;
+        color: var(--pb-primary);
+    }
+
+/* ============================================================
+   ADIM (STEP) GÖSTERİMİ — Doldurma ekranı
+   ============================================================ */
+.pb-step {
+    display: none;
+}
+
+    .pb-step.active {
+        display: block;
+        animation: pbFadeIn 0.2s ease;
+    }
+
+@keyframes pbFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
