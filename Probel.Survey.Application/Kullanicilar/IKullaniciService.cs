@@ -8,6 +8,8 @@ public interface IKullaniciService
     Task<bool> HicKullaniciVarMiAsync(CancellationToken ct = default);
     Task PasiflestirAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default);
     Task AktiflestirAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default);
+    Task SifreDegistirAsync(long kullaniciId, string mevcutSifre, string yeniSifre, CancellationToken ct = default);
+    Task<string> SifreSifirlaAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default);
 }
 
 public record KullaniciListeDto(long Id, string KullaniciAdi, string AdSoyad, bool AktifMi, bool YoneticiMi);

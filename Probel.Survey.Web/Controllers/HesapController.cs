@@ -59,4 +59,33 @@ public class HesapController : Controller
         await _kullaniciService.KayitAsync("admin", "Sifre123!", "Sistem Yöneticisi", yoneticiMi: true, islemYapanId: null, ct: ct);
         return Content("İlk yönetici hesabı oluşturuldu: admin / Sifre123!");
     }
+    [Authorize]
+    public IActionResult SifreDegistir() => View();
+
+    [HttpPost]
+    [Authorize]
+    public async Task<IActionResult> SifreDegistir(string mevcutSifre, string yeniSifre, string yeniSifreTekrar, CancellationToken ct)
+    {
+        if (yeniSifre != yeniSifreTekrar)
+        {
+            TempData["Hata"] = "Yeni şifreler eşleşmiyor.";
+            return RedirectToAction(nameof(SifreDegistir));
+        }
+
+        var kullaniciIdStr = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (!long.TryParse(kullaniciIdStr, out var kullaniciId))
+            return Forbid();
+
+        try
+        {
+            await _kullaniciService.SifreDegistirAsync(kullaniciId, mevcutSifre, yeniSifre, ct);
+            TempData["Mesaj"] = "Şifreniz güncellendi.";
+        }
+        catch (Exception ex) when (ex is InvalidOperationException or KeyNotFoundException)
+        {
+            TempData["Hata"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(SifreDegistir));
+    }
 }

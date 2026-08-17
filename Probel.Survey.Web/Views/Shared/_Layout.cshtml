@@ -54,7 +54,10 @@
 
         <div class="pb-sidebar-footer">
             @if (User.Identity?.IsAuthenticated == true)
-            {
+            {   
+                <a class="pb-nav-link" asp-controller="Hesap" asp-action="SifreDegistir">
+                    <i class="bi bi-key"></i> Şifre Değiştir
+                </a>
                 <a class="pb-nav-link" asp-controller="Hesap" asp-action="Cikis">
                     <i class="bi bi-box-arrow-right"></i> Çıkış Yap
                 </a>

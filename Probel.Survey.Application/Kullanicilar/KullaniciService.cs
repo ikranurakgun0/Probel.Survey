@@ -74,4 +74,43 @@ public class KullaniciService : IKullaniciService
 
         await _denetim.KaydetAsync(islemYapanId, "KULLANICI_AKTIFLESTIR", "KULLANICI", kullaniciId, ct);
     }
+    public async Task SifreDegistirAsync(long kullaniciId, string mevcutSifre, string yeniSifre, CancellationToken ct = default)
+    {
+        var kullanici = await _repository.GetByIdAsync(kullaniciId, ct)
+                        ?? throw new KeyNotFoundException("Kullanıcı bulunamadı.");
+
+        var sonuc = _hasher.VerifyHashedPassword(kullanici, kullanici.SifreHash, mevcutSifre);
+        if (sonuc != PasswordVerificationResult.Success)
+            throw new InvalidOperationException("Mevcut şifreniz hatalı.");
+
+        var yeniHash = _hasher.HashPassword(kullanici, yeniSifre);
+        kullanici.SifreGuncelle(yeniHash);
+        await _repository.SaveChangesAsync(ct);
+
+        await _denetim.KaydetAsync(kullaniciId, "SIFRE_DEGISTIR", "KULLANICI", kullaniciId, ct);
+    }
+    public async Task<string> SifreSifirlaAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default)
+    {
+        var kullanici = await _repository.GetByIdAsync(kullaniciId, ct)
+                        ?? throw new KeyNotFoundException("Kullanıcı bulunamadı.");
+
+        var yeniSifre = GeciciSifreUret();
+        var yeniHash = _hasher.HashPassword(kullanici, yeniSifre);
+        kullanici.SifreGuncelle(yeniHash);
+        await _repository.SaveChangesAsync(ct);
+
+        await _denetim.KaydetAsync(islemYapanId, "SIFRE_SIFIRLA", "KULLANICI", kullaniciId, ct);
+
+        return yeniSifre;
+    }
+
+    private static string GeciciSifreUret()
+    {
+        const string karakterler = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789";
+        var bytes = System.Security.Cryptography.RandomNumberGenerator.GetBytes(10);
+        var sb = new System.Text.StringBuilder();
+        foreach (var b in bytes)
+            sb.Append(karakterler[b % karakterler.Length]);
+        return sb.ToString();
+    }
 }
