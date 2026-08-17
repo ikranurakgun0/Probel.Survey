@@ -264,20 +264,17 @@ public class AnketController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> TopluDavetOlustur(long anketSurumId, string hedefListesi, CancellationToken ct)
+    public async Task<IActionResult> TopluDavetOlustur(long anketSurumId, string hedefListesi, string kanal, CancellationToken ct)
     {
         var hedefler = hedefListesi
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToList();
 
         try
-        {  //GetMevcutKullaniciId() — hatırlarsan bu, Yayınla/Arşivle
-           //action'larında da kullandığımız, giriş yapmış
-           //kullanıcının ID'sini çerezden okuyan yardımcı metot,
-           //aynı Controller'ın içinde zaten tanımlıydı.
-            var sonuclar = await _anketService.TopluDavetOlusturAsync(anketSurumId, hedefler, GetMevcutKullaniciId(), ct);
+        {
+            var sonuclar = await _anketService.TopluDavetOlusturAsync(anketSurumId, hedefler, kanal, GetMevcutKullaniciId(), ct);
             TempData["TopluSonuc"] = System.Text.Json.JsonSerializer.Serialize(sonuclar);
-            TempData["Mesaj"] = $"{sonuclar.Count(s => s.BasariliMi)}/{sonuclar.Count} e-posta gönderildi.";
+            TempData["Mesaj"] = $"{sonuclar.Count(s => s.BasariliMi)}/{sonuclar.Count} gönderim yapıldı.";
         }
         catch (InvalidOperationException ex)
         {

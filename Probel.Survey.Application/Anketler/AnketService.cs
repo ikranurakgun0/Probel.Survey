@@ -392,7 +392,7 @@ public class AnketService : IAnketService
         await _repository.DavetSilAsync(davetId, ct);
         await _denetim.KaydetAsync(kullaniciId, "DAVET_SIL", "DAVET", davetId, ct);
     }
-    public async Task<IReadOnlyList<TopluDavetSonucDto>> TopluDavetOlusturAsync(long anketSurumId, List<string> hedefler, long? kullaniciId, CancellationToken ct = default)
+    public async Task<IReadOnlyList<TopluDavetSonucDto>> TopluDavetOlusturAsync(long anketSurumId, List<string> hedefler, string kanal, long? kullaniciId, CancellationToken ct = default)
     {
         var surum = await _repository.GetByIdAsync(anketSurumId, ct)
                     ?? throw new KeyNotFoundException("Anket sürümü bulunamadı.");
@@ -415,7 +415,7 @@ public class AnketService : IAnketService
                 : $"/Anket/Doldur?token={token}";
 
             var mesaj = $"Hastanemizi tercih ettiginiz icin tesekkur ederiz. Deneyiminizi paylasmak icin: {link}";
-            var basarili = await _bildirim.GonderAsync(hedef, "EPOSTA", mesaj, ct);
+            var basarili = await _bildirim.GonderAsync(hedef, kanal, mesaj, ct);
 
             sonuclar.Add(new TopluDavetSonucDto(MaskeleHedef(hedef), basarili, basarili ? token : null));
         }
@@ -426,12 +426,18 @@ public class AnketService : IAnketService
 
     private static string MaskeleHedef(string hedef)
     {
-        var atIndex = hedef.IndexOf('@');
-        if (atIndex <= 1) return "****";
-        var yerel = hedef[..atIndex];
-        var alanAdi = hedef[atIndex..];
-        var gorunur = Math.Min(2, yerel.Length);
-        return yerel[..gorunur] + new string('*', Math.Max(yerel.Length - gorunur, 3)) + alanAdi;
+        if (hedef.Contains('@'))
+        {
+            var atIndex = hedef.IndexOf('@');
+            if (atIndex <= 1) return "****";
+            var yerel = hedef[..atIndex];
+            var alanAdi = hedef[atIndex..];
+            var gorunur = Math.Min(2, yerel.Length);
+            return yerel[..gorunur] + new string('*', Math.Max(yerel.Length - gorunur, 3)) + alanAdi;
+        }
+
+        if (hedef.Length <= 4) return "****";
+        return hedef[..2] + new string('*', hedef.Length - 4) + hedef[^2..];
     }
 
 }

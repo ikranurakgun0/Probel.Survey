@@ -178,11 +178,17 @@
                 <form asp-action="TopluDavetOlustur" method="post" class="mb-2">
                     <input type="hidden" name="anketSurumId" value="@Model.Id" />
                     <div class="mb-2">
-                        <label class="small text-muted">E-posta adresleri (her satıra bir tane)</label>
-                        <textarea name="hedefListesi" class="form-control form-control-sm" rows="3" placeholder="ornek@eposta.com"></textarea>
+                        <label class="small text-muted">Hedefler (her satıra bir telefon veya e-posta)</label>
+                        <textarea name="hedefListesi" class="form-control form-control-sm" rows="3" placeholder="05321234567 veya ornek@eposta.com"></textarea>
+                    </div>
+                    <div class="mb-2" style="max-width:180px;">
+                        <select name="kanal" class="form-select form-select-sm">
+                            <option value="SMS">SMS</option>
+                            <option value="EPOSTA">E-posta</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-sm btn-primary">
-                        <i class="bi bi-envelope"></i> Gönder
+                        <i class="bi bi-send"></i> Gönder
                     </button>
                 </form>
 

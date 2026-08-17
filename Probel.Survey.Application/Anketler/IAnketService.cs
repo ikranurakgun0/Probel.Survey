@@ -21,5 +21,5 @@ public interface IAnketService
     Task ArsivleAsync(long id, long? kullaniciId, CancellationToken ct = default);
     Task AnketSilAsync(long anketSurumId, CancellationToken ct = default);
     Task DavetSilAsync(long davetId, long? kullaniciId, CancellationToken ct = default);
-    Task<IReadOnlyList<TopluDavetSonucDto>> TopluDavetOlusturAsync(long anketSurumId, List<string> hedefler, long? kullaniciId, CancellationToken ct = default);
+    Task<IReadOnlyList<TopluDavetSonucDto>> TopluDavetOlusturAsync(long anketSurumId, List<string> hedefler, string kanal, long? kullaniciId, CancellationToken ct = default);
 }
