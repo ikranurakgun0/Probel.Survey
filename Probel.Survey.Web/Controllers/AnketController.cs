@@ -110,9 +110,14 @@ public class AnketController : Controller
         //yani /Anket/Detay/5 gibi doğru adrese gidiyor.
 
     [AllowAnonymous]
-    public async Task<IActionResult> QrKod(string token, [FromServices] IQrKodUretici qrUretici)
+    public IActionResult QrKod(string token, [FromServices] IQrKodUretici qrUretici, [FromServices] IConfiguration config)
     {
-        var url = Url.Action("Doldur", "Anket", new { token }, Request.Scheme)!;
+        var publicBase = config["PublicBaseUrl"];
+
+        string url = !string.IsNullOrWhiteSpace(publicBase)
+            ? $"{publicBase.TrimEnd('/')}/Anket/Doldur?token={token}"
+            : Url.Action("Doldur", "Anket", new { token }, Request.Scheme)!;
+
         var png = qrUretici.Uret(url);
         return File(png, "image/png");
     }
@@ -186,7 +191,7 @@ public class AnketController : Controller
         TempData["Mesaj"] = "Aksiyon açıldı.";
         return RedirectToAction(nameof(Rapor), new { id = anketSurumId });
     }
-
+   
     public async Task<IActionResult> Aksiyonlar(CancellationToken ct)
     {
         var aksiyonlar = await _anketService.GetAksiyonlarAsync(ct);
@@ -194,15 +199,91 @@ public class AnketController : Controller
     }
 
     [HttpPost]
+    
     public async Task<IActionResult> AksiyonDurumGuncelle(long aksiyonId, string yeniDurum, CancellationToken ct)
     {
         await _anketService.AksiyonDurumGuncelleAsync(aksiyonId, yeniDurum, GetMevcutKullaniciId(), ct);
         TempData["Mesaj"] = "Durum güncellendi.";
         return RedirectToAction(nameof(Aksiyonlar));
     }
+
     public async Task<IActionResult> DenetimIzleri(CancellationToken ct)
     {
         var kayitlar = await _anketService.GetDenetimIzleriAsync(ct);
         return View(kayitlar);
+    }
+  
+    public async Task<IActionResult> Karsilastirma(CancellationToken ct)
+    {
+        var rapor = await _anketService.GetKarsilastirmaRaporuAsync(ct);
+        return View(rapor);
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> Sil(long id, CancellationToken ct)
+    {
+        try
+        {
+            await _anketService.AnketSilAsync(id, ct);
+            TempData["Mesaj"] = "Anket silindi.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Hata"] = ex.Message;
+        }
+        return RedirectToAction(nameof(Index));
+    }
+    [HttpPost]
+    public async Task<IActionResult> Arsivle(long id, CancellationToken ct)
+    {
+        try
+        {
+            await _anketService.ArsivleAsync(id, GetMevcutKullaniciId(), ct);
+            TempData["Mesaj"] = "Anket arşivlendi.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Hata"] = ex.Message;
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DavetSil(long davetId, long anketSurumId, CancellationToken ct)
+    {
+        try
+        {
+            await _anketService.DavetSilAsync(davetId, GetMevcutKullaniciId(), ct);
+            TempData["Mesaj"] = "Davet silindi.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Hata"] = ex.Message;
+        }
+        return RedirectToAction(nameof(Detay), new { id = anketSurumId });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> TopluDavetOlustur(long anketSurumId, string hedefListesi, CancellationToken ct)
+    {
+        var hedefler = hedefListesi
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+
+        try
+        {  //GetMevcutKullaniciId() — hatırlarsan bu, Yayınla/Arşivle
+           //action'larında da kullandığımız, giriş yapmış
+           //kullanıcının ID'sini çerezden okuyan yardımcı metot,
+           //aynı Controller'ın içinde zaten tanımlıydı.
+            var sonuclar = await _anketService.TopluDavetOlusturAsync(anketSurumId, hedefler, GetMevcutKullaniciId(), ct);
+            TempData["TopluSonuc"] = System.Text.Json.JsonSerializer.Serialize(sonuclar);
+            TempData["Mesaj"] = $"{sonuclar.Count(s => s.BasariliMi)}/{sonuclar.Count} e-posta gönderildi.";
+        }
+        catch (InvalidOperationException ex)
+        {
+            TempData["Hata"] = ex.Message;
+        }
+
+        return RedirectToAction(nameof(Detay), new { id = anketSurumId });
     }
 }

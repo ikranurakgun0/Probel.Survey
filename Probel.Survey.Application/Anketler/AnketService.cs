@@ -1,6 +1,8 @@
-﻿using Probel.Survey.Domain.Entities;
+﻿using Microsoft.Extensions.Configuration;
+using Probel.Survey.Domain.Entities;
 using Probel.Survey.Domain.Repositories;
 using Probel.Survey.Domain.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Probel.Survey.Application.Anketler;
 
@@ -9,12 +11,18 @@ public class AnketService : IAnketService
     private readonly IAnketRepository _repository;
     private readonly ITokenUretici _tokenUretici;
     private readonly IDenetimKaydedici _denetim;
+    private readonly IBildirimGonderici _bildirim;
+    private readonly IConfiguration _config;
 
-    public AnketService(IAnketRepository repository, ITokenUretici tokenUretici, IDenetimKaydedici denetim)
+
+    public AnketService(IAnketRepository repository, ITokenUretici tokenUretici, IDenetimKaydedici denetim, IBildirimGonderici bildirim, IConfiguration config)
     {
         _repository = repository;
         _tokenUretici = tokenUretici;
         _denetim = denetim;
+        _bildirim = bildirim;
+        _config = config;
+        
     }
 
     public async Task<IReadOnlyList<AnketListeDto>> GetAllAsync(CancellationToken ct = default)
@@ -69,24 +77,26 @@ public class AnketService : IAnketService
     {
         var surum = await _repository.GetByIdAsync(id, ct)
                     ?? throw new KeyNotFoundException("Anket sürümü bulunamadı.");
-        
-        return new AnketDetayDto(                                       
+
+        var anketBilgi = await _repository.GetAnketBilgisiAsync(surum.AnketId, ct);
+
+        return new AnketDetayDto(
             surum.Id,
             surum.SurumNo,
             surum.Durum.ToString(),
+            anketBilgi?.Ad ?? "(bilinmiyor)",
+            anketBilgi?.HizmetTuru,
             surum.Bolumler.Select(b => new BolumDetayDto(
-                b.Id,
-                b.Ad,
-                b.Sira,
+                b.Id, b.Ad, b.Sira,
                 b.Sorular.Select(s => new SoruDetayDto(s.Id, s.Metin, s.Tip.ToString(), s.ZorunluMu)).ToList()
             )).ToList()
+        );
+    }//Ne işe yarıyor: Oracle'dan gelen AnketSurum
+     //nesnesini (bölümleri ve sorularıyla birlikte),
+     //View'a gönderilecek AnketDetayDto'ya çeviriyor. İçteki .Select(...) zincirleri,
+     //"her bölüm için bir BolumDetayDto üret,
+     //onun içinde de her soru için bir SoruDetayDto üret" diyor — iç içe dönüşüm.
 
-        );//Ne işe yarıyor: Oracle'dan gelen AnketSurum
-          //nesnesini (bölümleri ve sorularıyla birlikte),
-          //View'a gönderilecek AnketDetayDto'ya çeviriyor. İçteki .Select(...) zincirleri,
-          //"her bölüm için bir BolumDetayDto üret,
-          //onun içinde de her soru için bir SoruDetayDto üret" diyor — iç içe dönüşüm.
-    }
     public async Task BolumEkleAsync(long anketSurumId, string ad, CancellationToken ct = default)
     {
         var surum = await _repository.GetByIdAsync(anketSurumId, ct)
@@ -106,15 +116,26 @@ public class AnketService : IAnketService
         var surum = await _repository.GetByIdAsync(anketSurumId, ct)
                     ?? throw new KeyNotFoundException("Anket sürümü bulunamadı.");
 
-        var bolum = surum.Bolumler.FirstOrDefault(b => b.Id == bolumId) 
-                    ?? throw new KeyNotFoundException("Bölüm bulunamadı.");//Önce tüm anketi (sürümü) çekiyoruz, sonra onun bölümleri arasından
-                                                                           //istediğimiz bölümü buluyoruz — çünkü Soru, doğrudan değil,
-                                                                           //Bolum üzerinden ekleniyor (bolum.SoruEkle(...)).
+        var bolum = surum.Bolumler.FirstOrDefault(b => b.Id == bolumId)
+                    ?? throw new KeyNotFoundException("Bölüm bulunamadı.");
 
         var siradakiSira = bolum.Sorular.Count + 1;
-        bolum.SoruEkle(new Soru(metin, tip, zorunluMu, siradakiSira));
+        var soru = new Soru(metin, tip, zorunluMu, siradakiSira);
+
+        if (tip == SoruTipi.Olcek5)
+        {
+            soru.SecenekEkle(new SoruSecenek("Tamamen katılıyorum", 4, 1));
+            soru.SecenekEkle(new SoruSecenek("Katılıyorum", 3, 2));
+            soru.SecenekEkle(new SoruSecenek("Kararsızım", 2, 3));
+            soru.SecenekEkle(new SoruSecenek("Katılmıyorum", 1, 4));
+            soru.SecenekEkle(new SoruSecenek("Kesinlikle katılmıyorum", 0, 5));
+        }
+
+        bolum.SoruEkle(soru);
         await _repository.SaveChangesAsync(ct);
     }
+
+    
     public async Task<string> DavetOlusturAsync(long anketSurumId, CancellationToken ct = default)
     {
         var surum = await _repository.GetByIdAsync(anketSurumId, ct)
@@ -184,7 +205,7 @@ public class AnketService : IAnketService
         var surum = await _repository.GetByIdAsync(davet.AnketSurumId, ct)
                 ?? throw new KeyNotFoundException("Anket bulunamadı.");
 
-        // ↓↓↓ YENİ EKLENEN KONTROL ↓↓↓
+       
         var zorunluSoruIdleri = surum.Bolumler
             .SelectMany(b => b.Sorular)
             .Where(s => s.ZorunluMu)
@@ -299,7 +320,118 @@ public class AnketService : IAnketService
     {
         var kayitlar = await _repository.GetDenetimIzleriAsync(ct);
         return kayitlar
-            .Select(d => new DenetimIziDto(d.Id, d.KullaniciId, d.Islem, d.HedefTablo, d.HedefId, d.Zaman))
+            .Select(d => new DenetimIziDto(d.Id, d.KullaniciId, d.KullaniciAdi, d.Islem, d.HedefTablo, d.HedefId, d.Zaman))
             .ToList();
     }
+    public async Task<KarsilastirmaRaporuDto> GetKarsilastirmaRaporuAsync(CancellationToken ct = default)
+    {
+        var surumler = await _repository.GetAllAsync(ct);
+        var yayindakiler = surumler.Where(s => s.Durum == "Yayinda" && s.HizmetTuru != null).ToList();
+
+        var gruplar = yayindakiler.GroupBy(s => s.HizmetTuru!);
+        var sonuc = new List<HizmetTuruKarsilastirmaDto>();
+
+        foreach (var grup in gruplar)
+        {
+            var tumYanitlar = new List<YanitKaydi>();
+            foreach (var surum in grup)
+            {
+                var yanitlar = await _repository.GetYanitlarAsync(surum.Id, ct);
+                tumYanitlar.AddRange(yanitlar);
+            }
+
+            var olcekYanitlari = tumYanitlar.Where(y => y.SoruTipi == "Olcek5" && y.Agirlik != null).ToList();
+
+            double genelSkor = 0;
+            if (olcekYanitlari.Any())
+            {
+                var soruBazinda = olcekYanitlari
+                    .GroupBy(y => y.SoruId)
+                    .Select(g => Math.Round((double)g.Sum(x => x.Agirlik!.Value) / (g.Count() * 4) * 100, 1));
+                genelSkor = Math.Round(soruBazinda.Average(), 1);
+            }
+
+            var toplamKatilim = tumYanitlar.Select(y => y.YanitOturumuId).Distinct().Count();
+
+            sonuc.Add(new HizmetTuruKarsilastirmaDto(grup.Key, toplamKatilim, genelSkor));
+        }
+
+        return new KarsilastirmaRaporuDto(sonuc.OrderByDescending(s => s.GenelSkor).ToList());
+    }
+    
+
+   
+    public async Task ArsivleAsync(long id, long? kullaniciId, CancellationToken ct = default)
+    {
+        var surum = await _repository.GetByIdAsync(id, ct)
+                    ?? throw new KeyNotFoundException("Anket sürümü bulunamadı.");
+
+        surum.Arsivle();
+        await _repository.SaveChangesAsync(ct);
+
+        await _denetim.KaydetAsync(kullaniciId, "ANKET_ARSIVLE", "ANKET_SURUM", id, ct);
+    }
+    public async Task AnketSilAsync(long anketSurumId, CancellationToken ct = default)
+    {
+        var surum = await _repository.GetByIdAsync(anketSurumId, ct)
+                    ?? throw new KeyNotFoundException("Anket sürümü bulunamadı.");
+
+        if (surum.Durum != AnketDurumu.Taslak)
+            throw new InvalidOperationException("Yalnızca taslak durumundaki anketler silinebilir.");
+
+        await _repository.SilAsync(anketSurumId, ct);
+    }
+    public async Task DavetSilAsync(long davetId, long? kullaniciId, CancellationToken ct = default)
+    {
+        var davet = await _repository.GetDavetByIdAsync(davetId, ct)
+                    ?? throw new KeyNotFoundException("Davet bulunamadı.");
+
+        if (davet.Durum == DavetDurumu.Kullanildi)
+            throw new InvalidOperationException("Kullanılmış davetler silinemez.");
+
+        await _repository.DavetSilAsync(davetId, ct);
+        await _denetim.KaydetAsync(kullaniciId, "DAVET_SIL", "DAVET", davetId, ct);
+    }
+    public async Task<IReadOnlyList<TopluDavetSonucDto>> TopluDavetOlusturAsync(long anketSurumId, List<string> hedefler, long? kullaniciId, CancellationToken ct = default)
+    {
+        var surum = await _repository.GetByIdAsync(anketSurumId, ct)
+                    ?? throw new KeyNotFoundException("Anket sürümü bulunamadı.");
+
+        if (surum.Durum != AnketDurumu.Yayinda)
+            throw new InvalidOperationException("Yalnızca yayındaki anketler için davet oluşturulabilir.");
+
+        var publicBase = _config["PublicBaseUrl"];
+        var sonuclar = new List<TopluDavetSonucDto>();
+
+        foreach (var hedef in hedefler.Where(h => !string.IsNullOrWhiteSpace(h)))
+        {
+            var token = _tokenUretici.Uret();
+            var davet = new Davet(anketSurumId, token);
+            await _repository.AddDavetAsync(davet, ct);
+            await _repository.SaveChangesAsync(ct);
+
+            var link = !string.IsNullOrWhiteSpace(publicBase)
+                ? $"{publicBase.TrimEnd('/')}/Anket/Doldur?token={token}"
+                : $"/Anket/Doldur?token={token}";
+
+            var mesaj = $"Hastanemizi tercih ettiginiz icin tesekkur ederiz. Deneyiminizi paylasmak icin: {link}";
+            var basarili = await _bildirim.GonderAsync(hedef, "EPOSTA", mesaj, ct);
+
+            sonuclar.Add(new TopluDavetSonucDto(MaskeleHedef(hedef), basarili, basarili ? token : null));
+        }
+
+        await _denetim.KaydetAsync(kullaniciId, "TOPLU_DAVET_GONDER", "ANKET_SURUM", anketSurumId, ct);
+        return sonuclar;
+    }
+
+    private static string MaskeleHedef(string hedef)
+    {
+        var atIndex = hedef.IndexOf('@');
+        if (atIndex <= 1) return "****";
+        var yerel = hedef[..atIndex];
+        var alanAdi = hedef[atIndex..];
+        var gorunur = Math.Min(2, yerel.Length);
+        return yerel[..gorunur] + new string('*', Math.Max(yerel.Length - gorunur, 3)) + alanAdi;
+    }
+
 }

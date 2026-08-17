@@ -9,6 +9,8 @@ builder.Services.AddInfrastructure(builder.Configuration);// Oracle bağlantıs�
 builder.Services.AddScoped<IAnketService, AnketService>();// Application servisi kaydı
 builder.Services.AddScoped<IKullaniciService, KullaniciService>();
 builder.Services.AddControllersWithViews();// MVC'yi etkinleştir
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(opt =>
@@ -19,6 +21,11 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -26,7 +33,10 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseRouting();
 app.UseAuthentication();   // ← YENİ — Authorization'dan ÖNCE olmalı
 app.UseAuthorization();
@@ -34,7 +44,7 @@ app.MapStaticAssets();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}")
+    pattern: "{controller=Anket}/{action=Index}/{id?}")
     .WithStaticAssets();
 
 app.Run();

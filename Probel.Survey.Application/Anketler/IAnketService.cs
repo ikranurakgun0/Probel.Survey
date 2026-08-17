@@ -17,4 +17,9 @@ public interface IAnketService
     Task<IReadOnlyList<AksiyonListeDto>> GetAksiyonlarAsync(CancellationToken ct = default);
     Task AksiyonDurumGuncelleAsync(long aksiyonId, string yeniDurum, long? kullaniciId, CancellationToken ct = default);
     Task<IReadOnlyList<DenetimIziDto>> GetDenetimIzleriAsync(CancellationToken ct = default);
+    Task<KarsilastirmaRaporuDto> GetKarsilastirmaRaporuAsync(CancellationToken ct = default);
+    Task ArsivleAsync(long id, long? kullaniciId, CancellationToken ct = default);
+    Task AnketSilAsync(long anketSurumId, CancellationToken ct = default);
+    Task DavetSilAsync(long davetId, long? kullaniciId, CancellationToken ct = default);
+    Task<IReadOnlyList<TopluDavetSonucDto>> TopluDavetOlusturAsync(long anketSurumId, List<string> hedefler, long? kullaniciId, CancellationToken ct = default);
 }

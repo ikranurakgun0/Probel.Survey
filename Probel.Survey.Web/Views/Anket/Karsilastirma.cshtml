@@ -1,0 +1,32 @@
+﻿@model Probel.Survey.Application.Anketler.KarsilastirmaRaporuDto
+
+<h2 class="mb-3"><i class="bi bi-bar-chart-line"></i> Hizmet Türleri Karşılaştırması</h2>
+
+<div class="pb-card">
+    @if (!Model.HizmetTurleri.Any())
+    {
+        <p class="text-muted mb-0">Henüz karşılaştırma yapacak kadar yayında ve doldurulmuş anket yok.</p>
+    }
+    else
+    {
+        @foreach (var h in Model.HizmetTurleri)
+        {
+            <div class="mb-4">
+                <div class="d-flex justify-content-between mb-1">
+                    <strong>@h.HizmetTuru</strong>
+                    <span class="text-muted small">@h.ToplamKatilim katılım</span>
+                </div>
+                <div class="progress" style="height:28px;">
+                    <div class="progress-bar @(h.GenelSkor < 50 ? "bg-danger" : h.GenelSkor < 75 ? "" : "")"
+                         style="width:@(h.GenelSkor)%; @(h.GenelSkor >= 50 && h.GenelSkor < 75 ? "background-color:var(--pb-warning);" : "")">
+                        %@h.GenelSkor
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<a asp-action="Index" class="btn btn-outline-secondary">
+    <i class="bi bi-arrow-left"></i> Anket listesine dön
+</a>

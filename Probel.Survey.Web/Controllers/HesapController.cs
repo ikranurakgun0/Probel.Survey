@@ -28,13 +28,14 @@ public class HesapController : Controller
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.Name, kullaniciAdi),
-            new(ClaimTypes.NameIdentifier, kullanici.Id.ToString()) //ClaimTypes.NameIdentifier ne işe yarıyor:
-                                                                    //Bu, giriş çerezine "bu kullanıcının ID'si şu"
-                                                                    //bilgisini gömüyor. Artık her sayfada,
-                                                                    //User.FindFirst(ClaimTypes.NameIdentifier) diyerek,
-                                                                    //o an giriş yapmış kullanıcının ID'sine ulaşabiliyoruz
+            new(ClaimTypes.Name, kullanici.KullaniciAdi),
+            new(ClaimTypes.NameIdentifier, kullanici.Id.ToString())
         };
+        if (kullanici.YoneticiMi)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "Yonetici"));
+        }
+
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         await HttpContext.SignInAsync(new ClaimsPrincipal(identity));
 
@@ -48,18 +49,14 @@ public class HesapController : Controller
         return RedirectToAction(nameof(Giris));
     }
 
-    // GEÇİCİ: ilk kullanıcıyı oluşturmak için. Kullandıktan sonra SİL.
     [AllowAnonymous]
     public async Task<IActionResult> IlkKurulum(CancellationToken ct)
     {
         var hicKullaniciVarMi = await _kullaniciService.HicKullaniciVarMiAsync(ct);
         if (hicKullaniciVarMi)
-            return Forbid();   // sistemde zaten kullanıcı varsa, bu adres artık çalışmaz
+            return Forbid();
 
-        await _kullaniciService.KayitAsync("admin", "Sifre123!", "Sistem Yöneticisi", null, ct);
+        await _kullaniciService.KayitAsync("admin", "Sifre123!", "Sistem Yöneticisi", yoneticiMi: true, islemYapanId: null, ct: ct);
         return Content("İlk yönetici hesabı oluşturuldu: admin / Sifre123!");
     }
-
-    [AllowAnonymous]
-    public IActionResult ErisimYok() => View();
 }

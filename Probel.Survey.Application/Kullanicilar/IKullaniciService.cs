@@ -1,14 +1,13 @@
-﻿using Probel.Survey.Domain.Entities;
-
-
-namespace Probel.Survey.Application.Kullanicilar;
+﻿namespace Probel.Survey.Application.Kullanicilar;
 
 public interface IKullaniciService
 {
-    Task<Kullanici?> GirisKontrolAsync(string kullaniciAdi, string sifre, CancellationToken ct = default);   // ← DEĞİŞTİ (artık bool değil, Kullanici? döndürüyor)
-    Task KayitAsync(string kullaniciAdi, string sifre, string adSoyad, long? islemYapanId = null, CancellationToken ct = default);   // ← DEĞİŞTİ (islemYapanId eklendi)
+    Task<Probel.Survey.Domain.Entities.Kullanici?> GirisKontrolAsync(string kullaniciAdi, string sifre, CancellationToken ct = default);
+    Task KayitAsync(string kullaniciAdi, string sifre, string adSoyad, bool yoneticiMi = false, long? islemYapanId = null, CancellationToken ct = default);
     Task<IReadOnlyList<KullaniciListeDto>> GetAllAsync(CancellationToken ct = default);
     Task<bool> HicKullaniciVarMiAsync(CancellationToken ct = default);
-
+    Task PasiflestirAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default);
+    Task AktiflestirAsync(long kullaniciId, long? islemYapanId, CancellationToken ct = default);
 }
-public record KullaniciListeDto(long Id, string KullaniciAdi, string AdSoyad, bool AktifMi);
+
+public record KullaniciListeDto(long Id, string KullaniciAdi, string AdSoyad, bool AktifMi, bool YoneticiMi);

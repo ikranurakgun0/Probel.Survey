@@ -1,69 +1,208 @@
 ﻿@model Probel.Survey.Application.Anketler.AnketDoldurmaDto
+@{
+    Layout = "_LayoutBos";
+    var totalSoru = Model.Bolumler.Sum(b => b.Sorular.Count);
+}
 
-<div style="max-width:480px;margin:0 auto;">
+<div class="pb-bos-header">
+    <div class="pb-bos-logo"><i class="bi bi-heart-pulse-fill"></i></div>
     <h4>Hasta Memnuniyet Anketi</h4>
-    <p class="text-muted">Görüşleriniz bizim için değerlidir. Katılımınız anonimdir.</p>
+    <p class="text-muted small mb-0">Görüşleriniz bizim için değerlidir. Katılımınız anonimdir.</p>
+</div>
 
-    <form method="post">
-        <input type="hidden" name="token" value="@Model.Token" />
+<div class="mb-3">
+    <div class="d-flex justify-content-between small text-muted mb-1">
+        <span id="pbStepLabel">Kişisel Bilgiler</span>
+        <span id="pbProgressText">1 / @(totalSoru + 1)</span>
+    </div>
+    <div class="progress" style="height:8px;">
+        <div class="progress-bar" id="pbProgressBar" style="width:0%"></div>
+    </div>
+</div>
 
-        <div class="border rounded p-3 mb-3">
-            <p class="fw-bold">Birkaç kısa bilgi (isteğe bağlı)</p>
-            <div class="mb-2">
-                <label>Cinsiyet</label>
-                <select name="cinsiyet" class="form-select">
-                    <option value="">Belirtmek istemiyorum</option>
-                    <option value="Kadin">Kadın</option>
-                    <option value="Erkek">Erkek</option>
-                </select>
-            </div>
-            <div class="mb-2">
-                <label>Yaş Aralığı</label>
-                <select name="yasAraligi" class="form-select">
-                    <option value="">Belirtmek istemiyorum</option>
-                    <option value="20 altı">20'nin altında</option>
-                    <option value="20-29">20-29</option>
-                    <option value="30-39">30-39</option>
-                    <option value="40-49">40-49</option>
-                    <option value="50-59">50-59</option>
-                    <option value="60 ustu">60 üstü</option>
-                </select>
+<form method="post">
+    <input type="hidden" name="token" value="@Model.Token" />
+
+    <div id="pbFormView">
+        <div class="pb-step active" data-title="Kişisel Bilgiler">
+            <div class="pb-question-card">
+                <p class="fw-bold mb-2">Birkaç kısa bilgi <span class="text-muted fw-normal">(isteğe bağlı)</span></p>
+                <div class="mb-2">
+                    <label class="small text-muted">Cinsiyet</label>
+                    <select name="cinsiyet" class="form-select">
+                        <option value="">Belirtmek istemiyorum</option>
+                        <option value="Kadin">Kadın</option>
+                        <option value="Erkek">Erkek</option>
+                    </select>
+                </div>
+                <div class="mb-1">
+                    <label class="small text-muted">Yaş Aralığı</label>
+                    <select name="yasAraligi" class="form-select">
+                        <option value="">Belirtmek istemiyorum</option>
+                        <option value="20 altı">20'nin altında</option>
+                        <option value="20-29">20-29</option>
+                        <option value="30-39">30-39</option>
+                        <option value="40-49">40-49</option>
+                        <option value="50-59">50-59</option>
+                        <option value="60 ustu">60 üstü</option>
+                    </select>
+                </div>
             </div>
         </div>
 
         @foreach (var bolum in Model.Bolumler)
         {
-            <h5>@bolum.Ad</h5>
-
             @foreach (var soru in bolum.Sorular)
             {
-                <div class="mb-4">
-                    <p>@soru.Metin @(soru.ZorunluMu ? "*" : "")</p>
+                <div class="pb-step" data-title="@bolum.Ad" data-soru-id="@soru.Id" data-tip="@soru.Tip">
+                    <div class="pb-question-card">
+                        <p class="pb-question-text">@soru.Metin @(soru.ZorunluMu ? "*" : "")</p>
 
-                    @if (soru.Tip == "Olcek5")
-                    {
-                        @foreach (var secenek in soru.Secenekler)
+                        @if (soru.Tip == "Olcek5")
                         {
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio"
-                                            name="secenek_@soru.Id" value="@secenek.Id"
-                                            id="s@(soru.Id)_@(secenek.Id)"
+                            @foreach (var secenek in soru.Secenekler)
+                            {
+                                <div class="pb-option-row">
+                                    <input type="radio" name="secenek_@soru.Id" value="@secenek.Id"
+                                           id="s@(soru.Id)_@(secenek.Id)" data-label="@secenek.Metin"
                                     @(soru.ZorunluMu ? "required" : "") />
-                                <label class="form-check-label" for="s@(soru.Id)_@(secenek.Id)">
-                                    @secenek.Metin
-                                </label>
-                            </div>
+                                    <label for="s@(soru.Id)_@(secenek.Id)" class="mb-0" style="cursor:pointer;">
+                                        @secenek.Metin
+                                    </label>
+                                </div>
+                            }
                         }
-                    }
-                    else
-                    {
-                            <textarea name="metin_@soru.Id" class="form-control" rows="2"
+                        else
+                        {
+                            <textarea name="metin_@soru.Id" class="form-control" rows="3"
                             @(soru.ZorunluMu ? "required" : "")></textarea>
-                    }
+                        }
+                    </div>
                 </div>
             }
         }
 
-        <button type="submit" class="btn btn-primary w-100 mb-4">Gönder</button>
-    </form>
-</div>
+        <div class="d-flex gap-2 mt-3 mb-4">
+            <button type="button" id="pbPrevBtn" class="btn btn-outline-secondary" style="flex:1;" disabled>
+                <i class="bi bi-arrow-left"></i> Geri
+            </button>
+            <button type="button" id="pbNextBtn" class="btn btn-primary" style="flex:2;padding:0.75rem;">
+                İleri <i class="bi bi-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="pbReview" style="display:none;">
+        <h6 class="mt-2 mb-2 text-muted" style="font-size:0.8rem;text-transform:uppercase;letter-spacing:0.04em;">
+            Cevaplarınızı kontrol edin
+        </h6>
+        <div id="pbReviewList"></div>
+        <div class="d-flex gap-2 mt-3 mb-4">
+            <button type="button" id="pbEditBtn" class="btn btn-outline-secondary flex-fill">
+                <i class="bi bi-pencil"></i> Düzenle
+            </button>
+            <button type="submit" class="btn btn-primary flex-fill" style="padding:0.75rem;">
+                <i class="bi bi-send-fill"></i> Onayla ve Gönder
+            </button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        (function() {
+            var steps = Array.prototype.slice.call(document.querySelectorAll('.pb-step'));
+            var current = 0;
+
+            var prevBtn = document.getElementById('pbPrevBtn');
+            var nextBtn = document.getElementById('pbNextBtn');
+            var progressBar = document.getElementById('pbProgressBar');
+            var progressText = document.getElementById('pbProgressText');
+            var stepLabel = document.getElementById('pbStepLabel');
+
+            function showStep(i) {
+                steps.forEach(function(s, idx) {
+                    s.classList.toggle('active', idx === i);
+                });
+                current = i;
+                prevBtn.disabled = (i === 0);
+                nextBtn.innerHTML = (i === steps.length - 1)
+                    ? '<i class="bi bi-eye"></i> Gözden Geçir'
+                    : 'İleri <i class="bi bi-arrow-right"></i>';
+
+                stepLabel.textContent = steps[i].getAttribute('data-title');
+                progressText.textContent = (i + 1) + ' / ' + steps.length;
+                progressBar.style.width = Math.round(((i + 1) / steps.length) * 100) + '%';
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            function stepIsValid(step) {
+                var inputs = step.querySelectorAll('input, textarea');
+                for (var j = 0; j < inputs.length; j++) {
+                    if (!inputs[j].reportValidity()) return false;
+                }
+                return true;
+            }
+
+            prevBtn.addEventListener('click', function() {
+                if (current > 0) showStep(current - 1);
+            });
+
+            nextBtn.addEventListener('click', function() {
+                if (!stepIsValid(steps[current])) return;
+
+                if (current === steps.length - 1) {
+                    buildReview();
+                    document.getElementById('pbFormView').style.display = 'none';
+                    document.getElementById('pbReview').style.display = 'block';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    showStep(current + 1);
+                }
+            });
+
+            document.getElementById('pbEditBtn').addEventListener('click', function() {
+                document.getElementById('pbReview').style.display = 'none';
+                document.getElementById('pbFormView').style.display = 'block';
+                showStep(steps.length - 1);
+            });
+
+            function buildReview() {
+                var list = document.getElementById('pbReviewList');
+                list.innerHTML = '';
+
+                steps.forEach(function(step) {
+                    var soruId = step.getAttribute('data-soru-id');
+                    if (!soruId) return;
+
+                    var tip = step.getAttribute('data-tip');
+                    var soruText = step.querySelector('.pb-question-text').textContent;
+                    var cevap = '(boş)';
+
+                    if (tip === 'Olcek5') {
+                        var checked = step.querySelector('input[type=radio]:checked');
+                        if (checked) cevap = checked.getAttribute('data-label');
+                    } else {
+                        var ta = step.querySelector('textarea');
+                        if (ta && ta.value.trim()) cevap = ta.value.trim();
+                    }
+
+                    var wrap = document.createElement('div');
+                    wrap.className = 'pb-question-card';
+                    var q = document.createElement('div');
+                    q.className = 'small text-muted mb-1';
+                    q.textContent = soruText;
+                    var a = document.createElement('div');
+                    a.className = 'fw-semibold';
+                    a.textContent = cevap;
+                    wrap.appendChild(q);
+                    wrap.appendChild(a);
+                    list.appendChild(wrap);
+                });
+            }
+
+            showStep(0);
+        })();
+    </script>
+}

@@ -82,9 +82,58 @@ public class AnketRepository : IAnketRepository //IAnketRepository'nin sözleşm
         => _db.Aksiyonlar.FirstOrDefaultAsync(a => a.Id == id, ct);
     public async Task<string?> GetSoruMetniAsync(long soruId, CancellationToken ct = default)
     => await _db.Sorular.Where(s => s.Id == soruId).Select(s => s.Metin).FirstOrDefaultAsync(ct);
-    public async Task<IReadOnlyList<DenetimIzi>> GetDenetimIzleriAsync(CancellationToken ct = default)
-    => await _db.DenetimIzleri.AsNoTracking().OrderByDescending(d => d.Zaman).ToListAsync(ct);
+    public async Task<IReadOnlyList<DenetimIziKaydi>> GetDenetimIzleriAsync(CancellationToken ct = default)
+    {
+        var query =
+            from d in _db.DenetimIzleri.AsNoTracking()
+            join k in _db.Kullanicilar.AsNoTracking() on d.KullaniciId equals k.Id into kGroup
+            from k in kGroup.DefaultIfEmpty() //Rapor sorgusunda da kullanmıştık, KullaniciId boş olabilir
+                                              //(sistem tarafından tetiklenen bir işlem),
+                                              //o zaman k de null olur, KullaniciAdi de null kalır — hata vermeden.
+            orderby d.Zaman descending
+            select new DenetimIziKaydi(d.Id, d.KullaniciId, k != null ? k.KullaniciAdi : null, d.Islem, d.HedefTablo, d.HedefId, d.Zaman);
 
+        return await query.ToListAsync(ct);
+    }
+    public async Task SilAsync(long anketSurumId, CancellationToken ct = default)
+    {
+        var surum = await _db.AnketSurumleri
+            .Include(a => a.Bolumler)
+                .ThenInclude(b => b.Sorular)
+                    .ThenInclude(s => s.Secenekler)
+            .FirstOrDefaultAsync(a => a.Id == anketSurumId, ct);
+
+        if (surum == null) return;
+
+        foreach (var bolum in surum.Bolumler)
+        {
+            foreach (var soru in bolum.Sorular)
+            {
+                _db.SoruSecenekleri.RemoveRange(soru.Secenekler);
+            }
+            _db.Sorular.RemoveRange(bolum.Sorular);
+        }
+        _db.Bolumler.RemoveRange(surum.Bolumler);
+        _db.AnketSurumleri.Remove(surum);
+
+        await _db.SaveChangesAsync(ct);
+    }
+    public Task<Davet?> GetDavetByIdAsync(long davetId, CancellationToken ct = default)
+    => _db.Davetler.FirstOrDefaultAsync(d => d.Id == davetId, ct);
+
+    public async Task DavetSilAsync(long davetId, CancellationToken ct = default)
+    {
+        var davet = await _db.Davetler.FirstOrDefaultAsync(d => d.Id == davetId, ct);
+        if (davet != null)
+            _db.Davetler.Remove(davet);
+
+        await _db.SaveChangesAsync(ct);
+    }
+    public async Task<AnketOzetBilgi?> GetAnketBilgisiAsync(long anketId, CancellationToken ct = default)
+    {
+        var anket = await _db.Anketler.AsNoTracking().FirstOrDefaultAsync(a => a.Id == anketId, ct);
+        return anket == null ? null : new AnketOzetBilgi(anket.Ad, anket.HizmetTuru);
+    }
     public Task SaveChangesAsync(CancellationToken ct = default)
         => _db.SaveChangesAsync(ct);
    
