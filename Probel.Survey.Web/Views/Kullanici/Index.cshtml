@@ -76,6 +76,15 @@
                                     </button>
                                 </form>
                             }
+                            @if (!k.YoneticiMi)
+                            {
+                                <form asp-action="SifreSifirla" asp-route-id="@k.Id" method="post"
+                                      data-confirm="Bu kullanıcının şifresini sıfırlamak istediğinize emin misiniz? Yeni geçici bir şifre üretilecek.">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-key"></i> Şifre Sıfırla
+                                    </button>
+                                </form>
+                            }
                         </td>
                     }
                 </tr>

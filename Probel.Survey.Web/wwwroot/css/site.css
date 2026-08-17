@@ -328,3 +328,17 @@ details.pb-add-form summary {
 details.pb-add-form[open] summary::before {
     content: "− ";
 }
+.pb-auth-card {
+    box-shadow: 0 4px 24px rgba(20,22,31,0.06);
+}
+
+    .pb-auth-card .input-group-text {
+        background: #fff;
+        border-color: var(--pb-border);
+        color: var(--pb-muted);
+    }
+
+    .pb-auth-card .form-control:focus {
+        border-color: var(--pb-accent);
+        box-shadow: 0 0 0 0.2rem var(--pb-accent-soft);
+    }

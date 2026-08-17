@@ -77,4 +77,15 @@ public class KullaniciController : Controller
         TempData["Mesaj"] = "Kullanıcı aktifleştirildi.";
         return RedirectToAction(nameof(Index));
     }
+    [HttpPost]
+    [Authorize(Roles = "Yonetici")]
+    public async Task<IActionResult> SifreSifirla(long id, CancellationToken ct)
+    {
+        var islemYapanId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        long? islemYapanIdLong = long.TryParse(islemYapanId, out var pid) ? pid : null;
+
+        var yeniSifre = await _kullaniciService.SifreSifirlaAsync(id, islemYapanIdLong, ct);
+        TempData["Mesaj"] = $"Yeni geçici şifre: {yeniSifre} — bu şifreyi kullanıcıya güvenli bir kanaldan iletin, bir daha ekranda görünmeyecek.";
+        return RedirectToAction(nameof(Index));
+    }
 }
