@@ -6,8 +6,8 @@ public record BolumDetayDto(long Id, string Ad, int Sira, List<SoruDetayDto> Sor
 public record AnketDetayDto(long Id, int SurumNo, string Durum, string AnketAdi, string? HizmetTuru, List<BolumDetayDto> Bolumler); //Neden bu üç DTO — hiyerarşik yapıyı ekrana taşımak için. AnketDetayDto,
                                                                                                                                     //içinde bir BolumDetayDto listesi taşıyor;
                                                                                                                                     //her BolumDetayDto da içinde bir SoruDetayDto listesi taşıyor.
-                                                                                                                                    //Domain'deki iç içe yapıyı (AnketSurum → Bolumler → Sorular),
-                                                                                                                                    //View'a aynı şekilde ama "sade veri" olarak yansıtıyoruz.
+//View'lara gönderilecek sade veri paketleri (Domain entity'lerinin "iş kuralı metotları çıkarılmış" hali                                                                                                                                    //Domain'deki iç içe yapıyı (AnketSurum → Bolumler → Sorular),
+                                                                                                                                                                                                                                           //View'a aynı şekilde ama "sade veri" olarak yansıtıyoruz.
 public record DavetDto(long Id, string Token, string Durum, DateTime SonGecerlilik);
 public record SecenekDto(long Id, string Metin);
 public record SoruDoldurmaDto(long Id, string Metin, string Tip, bool ZorunluMu, List<SecenekDto> Secenekler);

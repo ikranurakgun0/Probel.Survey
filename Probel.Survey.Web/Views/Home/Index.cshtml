@@ -1,8 +1,26 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Ana Sayfa";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="mb-4">
+    <h2 class="mb-1">Hoş Geldiniz</h2>
+    <p class="text-muted mb-0">Probel Hasta Memnuniyet Anketi yönetim paneline giriş yaptınız.</p>
+</div>
+
+<div class="pb-card" style="max-width:640px;">
+    <div class="d-flex align-items-start gap-3">
+        <div class="pb-bos-logo" style="margin-bottom:0;flex-shrink:0;">
+            <i class="bi bi-activity"></i>
+        </div>
+        <div>
+            <h4 class="mb-1">Anketlerinizi buradan yönetin</h4>
+            <p class="text-muted mb-3">
+                Yeni anket oluşturabilir, davet gönderebilir, sonuçları raporlayabilir ve
+                düşük memnuniyet alanları için aksiyon açabilirsiniz.
+            </p>
+            <a asp-controller="Anket" asp-action="Index" class="btn btn-primary">
+                <i class="bi bi-clipboard-data"></i> Anketlere Git
+            </a>
+        </div>
+    </div>
 </div>

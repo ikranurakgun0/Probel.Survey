@@ -18,7 +18,7 @@
                 </div>
                 <div class="progress" style="height:28px;">
                     <div class="progress-bar @(h.GenelSkor < 50 ? "bg-danger" : h.GenelSkor < 75 ? "" : "")"
-                         style="width:@(h.GenelSkor)%; @(h.GenelSkor >= 50 && h.GenelSkor < 75 ? "background-color:var(--pb-warning);" : "")">
+                         style="width:@(h.GenelSkor.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))%; @(h.GenelSkor >= 50 && h.GenelSkor < 75 ? "background-color:var(--pb-warning);" : "")">
                         %@h.GenelSkor
                     </div>
                 </div>

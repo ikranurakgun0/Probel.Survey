@@ -17,12 +17,12 @@
     <aside class="pb-sidebar">
         <a class="pb-brand" asp-controller="Anket" asp-action="Index">
             <span class="pb-logo"><i class="bi bi-activity"></i></span>
-            Probel
+            <span class="pb-brand-text">Probel</span>
         </a>
 
         <nav class="d-flex flex-column">
             <a class="pb-nav-link @(current == "Index" ? "active" : "")" asp-controller="Anket" asp-action="Index">
-                <i class="bi bi-clipboard-data"></i> Anketler
+                <i class="bi bi-clipboard-data"></i> <span class="pb-nav-text">Anketler</span>
             </a>
             @{
                 var seciliHizmet = Context.Request.Query["hizmetTuru"].ToString();
@@ -39,27 +39,27 @@
                 
             </div>
             <a class="pb-nav-link @(current == "Aksiyonlar" ? "active" : "")" asp-controller="Anket" asp-action="Aksiyonlar">
-                <i class="bi bi-exclamation-triangle"></i> Aksiyonlar
+                <i class="bi bi-exclamation-triangle"></i> <span class="pb-nav-text">Aksiyonlar</span>
             </a>
             <a class="pb-nav-link @(current == "Karsilastirma" ? "active" : "")" asp-controller="Anket" asp-action="Karsilastirma">
-                <i class="bi bi-bar-chart-line"></i> Karşılaştırma
+                <i class="bi bi-bar-chart-line"></i> <span class="pb-nav-text">Karşılaştırma</span>
             </a>
             <a class="pb-nav-link @(current == "DenetimIzleri" ? "active" : "")" asp-controller="Anket" asp-action="DenetimIzleri">
-                <i class="bi bi-shield-check"></i> Denetim İzi
+                <i class="bi bi-shield-check"></i> <span class="pb-nav-text">Denetim İzi</span>
             </a>
             <a class="pb-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Kullanici" ? "active" : "")" asp-controller="Kullanici" asp-action="Index">
-                <i class="bi bi-people"></i> Kullanıcılar
+                <i class="bi bi-people"></i> <span class="pb-nav-text">Kullanıcılar</span>
             </a>
         </nav>
 
         <div class="pb-sidebar-footer">
             @if (User.Identity?.IsAuthenticated == true)
-            {   
+            {
                 <a class="pb-nav-link" asp-controller="Hesap" asp-action="SifreDegistir">
-                    <i class="bi bi-key"></i> Şifre Değiştir
+                    <i class="bi bi-key"></i> <span class="pb-nav-text">Şifre Değiştir</span>
                 </a>
                 <a class="pb-nav-link" asp-controller="Hesap" asp-action="Cikis">
-                    <i class="bi bi-box-arrow-right"></i> Çıkış Yap
+                    <i class="bi bi-box-arrow-right"></i> <span class="pb-nav-text">Çıkış Yap</span>
                 </a>
             }
         </div>
