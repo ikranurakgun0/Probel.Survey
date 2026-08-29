@@ -43,7 +43,7 @@
                         <td>@s.CevapSayisi</td>
                         <td>
                             <div class="progress" style="height:20px;">
-                                <div class="progress-bar @(s.DusukPerformans ? "bg-danger" : "")" style="width:@(s.KarsilanmaOrani)%">
+                                <div class="progress-bar @(s.DusukPerformans ? "bg-danger" : "")" style="width:@(s.KarsilanmaOrani.ToString("0.0", System.Globalization.CultureInfo.InvariantCulture))%">
                                     %@s.KarsilanmaOrani
                                 </div>
                             </div>

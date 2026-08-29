@@ -6,10 +6,13 @@ using Probel.Survey.Infrastructure.Services;
 using System.Security.Claims;
 
 
-
+//Web katmanı, kullanıcıyla etkileşimi yönetiyor — HTTP isteklerini alıp
+//Application servislerine iletiyor, sonucu View'lara çeviriyor.
+//Kendisi hiçbir iş mantığı veya veritabanı erişimi içermiyor,
+//sadece bir 'kapı' görevi görüyor.
 namespace Probel.Survey.Web.Controllers;
 
-[Authorize]   // ← YENİ — artık sınıftaki HER action, varsayılan olarak giriş ister
+[Authorize]   // artık sınıftaki HER action, varsayılan olarak giriş ister
 public class AnketController : Controller
 {
     private readonly IAnketService _anketService;
@@ -61,7 +64,7 @@ public class AnketController : Controller
         {
             TempData["Hata"] = ex.Message;
         }
-        return RedirectToAction(nameof(Index));  //TempData neden var, ViewBag değil: Hatırlarsan
+        return RedirectToAction(nameof(Index));  //TempData neden var, ViewBag değil,
                                                  //Yayinla action'ı işini bitirince RedirectToAction(nameof(Index)) ile
                                                  //başka bir action'a yönlendiriyor — yani yeni bir HTTP isteği başlıyor.
                                                  //ViewBag/ViewData sadece tek bir istek boyunca yaşar,
